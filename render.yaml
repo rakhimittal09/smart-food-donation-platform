@@ -1,6 +1,7 @@
 services:
   # Backend Web Service
-  - type: web
+ - type: web
+  runtime: static
     name: smart-food-donation-backend
     env: node
     plan: free
