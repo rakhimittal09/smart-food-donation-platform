@@ -119,6 +119,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-
-// Add backend APIs

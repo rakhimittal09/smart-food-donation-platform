@@ -1,172 +1,158 @@
-# 🚀 Deployment Guide — Smart Food Donation Platform (NourishLink)
+# 🚀 Render Deployment Guide
+## Smart Food Donation Platform (MERN Stack)
 
-This comprehensive guide will help you deploy your full-stack MERN (MongoDB, Express, React, Node.js) application to live production for **100% FREE** using modern cloud platforms.
-
----
-
-## 📋 Table of Contents
-1. [Prerequisites](#1-prerequisites)
-2. [Step 1: Setup Cloud Database (MongoDB Atlas)](#step-1-setup-cloud-database-mongodb-atlas)
-3. [Step 2: Commit & Push Code to GitHub](#step-2-commit--push-code-to-github)
-4. [Step 3: Choose Your Deployment Method](#step-3-choose-your-deployment-method)
-   - **[Method A: Render Blueprint (Easiest - 1 Click) ⭐](#method-a-render-blueprint-recommended-)**
-   - **[Method B: Vercel (Frontend) + Render (Backend)](#method-b-vercel-frontend--render-backend)**
-   - **[Method C: Single Unified Service (Render / Railway)](#method-c-single-unified-service-render--railway)**
-5. [Step 4: Seed Initial Data (Optional)](#step-4-seed-initial-data-optional)
-6. [Troubleshooting & FAQs](#troubleshooting--faqs)
+Deploy the full-stack app **100% FREE** on [Render.com](https://render.com) in under 15 minutes.
 
 ---
 
-## 1. Prerequisites
+## 📋 What You Need
 
-Before starting, ensure you have free accounts on:
-1. **GitHub** ([github.com](https://github.com))
-2. **MongoDB Atlas** ([mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas))
-3. **Render** ([render.com](https://render.com)) and/or **Vercel** ([vercel.com](https://vercel.com))
+| Account | Link |
+|---|---|
+| GitHub | https://github.com |
+| MongoDB Atlas (free cloud DB) | https://cloud.mongodb.com |
+| Render | https://render.com |
 
 ---
 
-## Step 1: Setup Cloud Database (MongoDB Atlas)
+## Step 1 — Set Up MongoDB Atlas (Cloud Database)
 
-Since local MongoDB (`localhost:27017`) won't work on the cloud, create a free cloud database:
+> Local `mongodb://localhost:27017` will **not** work on Render. You need a free cloud database.
 
-1. Log in to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
-2. Click **Create a Database** / **Build a Database** and select the **FREE M0** tier (Shared).
-3. **Database Access (User):**
-   - Go to **Security** ➔ **Database Access**.
-   - Click **Add New Database User**.
-   - Set Username (e.g., `rakhi`) and a secure Password (e.g., `SecurePass123!`).
-   - Role: `Read and write to any database`.
-4. **Network Access (IP Whitelist):**
-   - Go to **Security** ➔ **Network Access**.
-   - Click **Add IP Address**.
-   - Choose **Allow Access from Anywhere** (`0.0.0.0/0`).
-5. **Get Connection String:**
-   - Go to **Deployment** ➔ **Database**.
-   - Click **Connect** on your cluster ➔ Select **Drivers** (Node.js).
-   - Copy the URI, for example:
-     ```text
-     mongodb+srv://rakhi:<password>@cluster0.xxxx.mongodb.net/smart-food-donation?retryWrites=true&w=majority
+1. Log in to [MongoDB Atlas](https://cloud.mongodb.com) → click **Create a Free Cluster** (M0 Shared).
+2. **Create a Database User:**
+   - Left sidebar → **Database Access** → **Add New Database User**
+   - Username: `sfd_user` | Password: `YourStrongPassword123`
+   - Role: **Read and write to any database**
+3. **Allow All IPs (for Render):**
+   - Left sidebar → **Network Access** → **Add IP Address** → **Allow Access from Anywhere** (`0.0.0.0/0`)
+4. **Get Your Connection String:**
+   - Left sidebar → **Database** → **Connect** → **Drivers (Node.js)**
+   - Copy the URI — it looks like:
      ```
-   - Replace `<password>` with your database user password.
+     mongodb+srv://sfd_user:YourStrongPassword123@cluster0.xxxxx.mongodb.net/smart-food-donation?retryWrites=true&w=majority
+     ```
+   - 📌 **Save this URI** — you will paste it into Render.
 
 ---
 
-## Step 2: Commit & Push Code to GitHub
+## Step 2 — Push Code to GitHub
 
-Open terminal in the project root:
+In the project root folder, run:
 ```bash
 git add .
-git commit -m "Configure deployment files and build setup"
+git commit -m "Ready for Render deployment"
 git push origin main
 ```
 
 ---
 
-## Step 3: Choose Your Deployment Method
+## Step 3 — Choose Deployment Method
 
-### Method A: Render Blueprint (Recommended ⭐)
+### ⭐ Method A — Blueprint (Easiest — 1 Click, 2 Services)
 
-This repository includes a [`render.yaml`](./render.yaml) file configured for instant dual-service deployment.
+This uses the [`render.yaml`](./render.yaml) file already in the project root.
 
-1. Go to your [Render Dashboard](https://dashboard.render.com/).
-2. Click the **New +** button in top navbar ➔ Select **Blueprint**.
-3. Connect your repository: `rakhimittal09/smart-food-donation-platform`.
-4. Render will detect the `render.yaml` and create 2 services:
-   - `smart-food-donation-backend` (Node.js Web Service)
-   - `smart-food-donation-frontend` (Static Site)
-5. Fill in the environment variables when prompted:
-   - `MONGO_URI`: Your MongoDB Atlas URI from Step 1
-   - `CLIENT_URL`: Leave empty initially or set to your frontend URL
-   - `VITE_API_BASE_URL`: `https://smart-food-donation-backend.onrender.com/api` (replace with your backend service name)
-6. Click **Apply**.
-7. Once deployed:
-   - Copy the Backend URL (e.g. `https://smart-food-donation-backend.onrender.com`).
-   - Copy the Frontend URL (e.g. `https://smart-food-donation-frontend.onrender.com`).
-   - Go to Backend Settings ➔ Environment Variables ➔ Set `CLIENT_URL` = your frontend URL.
-   - Go to Frontend Settings ➔ Environment Variables ➔ Set `VITE_API_BASE_URL` = `https://smart-food-donation-backend.onrender.com/api`.
-   - Click **Manual Deploy** ➔ **Deploy latest commit** on Frontend to apply the API URL!
+1. Go to [Render Dashboard](https://dashboard.render.com) → click **New +** → **Blueprint**.
+2. Connect your GitHub repo: `rakhimittal09/smart-food-donation-platform`.
+3. Render auto-detects `render.yaml` and creates **2 services:**
+   - `smart-food-donation-backend` — Express API (Web Service)
+   - `smart-food-donation-frontend` — React app (Static Site)
+4. **Fill in the environment variables when prompted:**
+
+   | Service | Key | Value |
+   |---|---|---|
+   | Backend | `MONGO_URI` | Your Atlas URI from Step 1 |
+   | Backend | `JWT_SECRET` | *(auto-generated by Render)* |
+   | Backend | `CLIENT_URL` | *(leave blank for now)* |
+   | Frontend | `VITE_API_BASE_URL` | *(leave blank for now)* |
+
+5. Click **Apply** and wait for both services to deploy (~3-5 minutes).
+6. **After deploy — update the URLs:**
+   - Copy your **Backend URL** (e.g. `https://smart-food-donation-backend.onrender.com`)
+   - Copy your **Frontend URL** (e.g. `https://smart-food-donation-frontend.onrender.com`)
+   - Go to Backend → **Environment** → set:
+     ```
+     CLIENT_URL = https://smart-food-donation-frontend.onrender.com
+     ```
+   - Go to Frontend → **Environment** → set:
+     ```
+     VITE_API_BASE_URL = https://smart-food-donation-backend.onrender.com/api
+     ```
+   - **Redeploy the Frontend** (Render Dashboard → Frontend → Manual Deploy → Deploy latest commit)
 
 ---
 
-### Method B: Vercel (Frontend) + Render (Backend)
+### Method B — Single Unified Service (Simplest URL setup)
 
-#### 1. Deploy Backend on Render:
-1. Go to [Render Dashboard](https://dashboard.render.com/) ➔ **New +** ➔ **Web Service**.
-2. Connect `smart-food-donation-platform` repo.
-3. Settings:
-   - **Name:** `smart-food-donation-api`
-   - **Root Directory:** `server`
-   - **Environment:** `Node`
-   - **Build Command:** `npm install`
-   - **Start Command:** `node server.js`
-4. Add Environment Variables:
-   - `NODE_ENV` = `production`
-   - `PORT` = `5000`
-   - `MONGO_URI` = `mongodb+srv://...` (from Atlas)
-   - `JWT_SECRET` = (random 32 character string)
-   - `CLIENT_URL` = `https://your-vercel-app.vercel.app` (update after deploying frontend)
+One service runs both Express backend AND serves the built React frontend. Everything is on **one URL**.
+
+1. Go to [Render Dashboard](https://dashboard.render.com) → **New +** → **Web Service**.
+2. Connect your GitHub repo.
+3. Configure the service:
+
+   | Setting | Value |
+   |---|---|
+   | **Name** | `smart-food-donation` |
+   | **Root Directory** | *(leave empty)* |
+   | **Environment** | `Node` |
+   | **Build Command** | `npm run render:build` |
+   | **Start Command** | `npm run render:start` |
+
+4. Add **Environment Variables:**
+
+   | Key | Value |
+   |---|---|
+   | `NODE_ENV` | `production` |
+   | `MONGO_URI` | Your Atlas URI from Step 1 |
+   | `JWT_SECRET` | Any long random string (e.g. `openssl rand -hex 32`) |
+   | `JWT_EXPIRE` | `7d` |
+   | `CLIENT_URL` | *(your Render service URL — set after first deploy)* |
+
 5. Click **Create Web Service**.
+6. Once live, copy the service URL and set it as `CLIENT_URL` in your environment variables, then redeploy.
 
-#### 2. Deploy Frontend on Vercel:
-1. Go to [Vercel Dashboard](https://vercel.com/dashboard) ➔ **Add New...** ➔ **Project**.
-2. Import `rakhimittal09/smart-food-donation-platform` repository.
-3. Configure Project:
-   - **Framework Preset:** `Vite`
-   - **Root Directory:** Click Edit and select `client`
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
-4. Expand **Environment Variables**:
-   - Key: `VITE_API_BASE_URL`
-   - Value: `https://smart-food-donation-api.onrender.com/api` (your Render backend URL + `/api`)
-5. Click **Deploy**.
-6. Copy your Vercel URL (e.g., `https://smart-food-donation-platform.vercel.app`) and paste it as `CLIENT_URL` in your Render backend settings!
+> ✅ The Express server already serves the built React frontend in production mode via [`server/app.js`](./server/app.js).
 
 ---
 
-### Method C: Single Unified Service (Render / Railway)
+## Step 4 — Seed Demo Data (Optional)
 
-You can also run both Frontend & Backend from a single unified server:
+To populate your live Atlas database with demo users and food listings, update `server/.env` to point to your Atlas URI temporarily, then run:
 
-1. In Render ➔ **New Web Service**.
-2. **Root Directory:** *(leave blank / root)*
-3. **Build Command:** `npm run install:all && npm run build`
-4. **Start Command:** `npm start`
-5. **Environment Variables:**
-   - `NODE_ENV` = `production`
-   - `PORT` = `5000`
-   - `MONGO_URI` = `mongodb+srv://...`
-   - `JWT_SECRET` = `your_jwt_secret`
-6. Click **Create Web Service**. Your full frontend + backend will run seamlessly under a single URL!
-
----
-
-## Step 4: Seed Initial Data (Optional)
-
-To seed demo users (Donor, NGO, Admin) and categories into your live cloud database:
-
-Run locally with your Atlas URI:
 ```bash
-# In server directory, set MONGO_URI in server/.env to your Atlas connection string, then:
 cd server
+# update MONGO_URI in server/.env to your Atlas connection string, then:
 npm run seed
 ```
 
+**Demo credentials created by the seed:**
+
+| Role | Email | Password |
+|---|---|---|
+| 🔑 Admin | `admin@fooddonation.org` | `admin123` |
+| 🍱 Donor | `donor@tajkitchen.com` | `donor123` |
+| 🤝 NGO | `hope.foundation@ngo.org` | `receiver123` |
+
 ---
 
-## 🔒 Security Best Practices for Production
+## 🔒 Security Checklist
 
-1. **CORS:** `server/app.js` is configured to only allow requests from your `CLIENT_URL` in production.
-2. **Secrets:** Never commit `.env` files to git. Use hosting platform environment variables.
-3. **MongoDB:** Always restrict IP or keep strong passwords on Atlas database users.
+- [x] Passwords hashed with **bcrypt** (salt 10) — never stored in plain text
+- [x] JWT secrets are **environment variables** — never hardcoded
+- [x] CORS only allows `CLIENT_URL` domain in production
+- [x] Admin accounts **cannot** be created via public registration
+- [x] `.env` files are in `.gitignore` — never committed to GitHub
 
 ---
 
 ## ❓ Troubleshooting
 
-| Issue | Solution |
+| Problem | Fix |
 |---|---|
-| **CORS Error in Browser** | Verify `CLIENT_URL` in backend matches your frontend domain (no trailing slash). |
-| **API 404 on Refresh** | Check `client/vercel.json` (Vercel) or static route rewrite `/* -> /index.html` (Render). |
-| **MongoDB Connection Timeout** | Verify Network Access in MongoDB Atlas has `0.0.0.0/0` allowed. |
-| **Images not displaying** | If hosting on free ephemeral containers, uploaded images reset on restart. For persistent uploads, consider Cloudinary (optional upgrade). |
+| **CORS Error in browser** | Ensure `CLIENT_URL` in backend matches your frontend URL exactly (no trailing slash) |
+| **API calls return 404 on page refresh** | Method A: `render.yaml` already handles `/* → /index.html` rewrite. Method B: Express serves `index.html` for all non-API routes |
+| **MongoDB connection timeout** | In Atlas → Network Access → confirm `0.0.0.0/0` is added |
+| **Uploaded images disappear after redeploy** | Render free tier has ephemeral disk — images reset on restart. For permanent uploads, integrate [Cloudinary](https://cloudinary.com) |
+| **Render sleeps after 15 minutes (free tier)** | First request after sleep takes ~30 seconds. Upgrade to Render Starter plan to keep it awake |
+| **Build fails — module not found** | Ensure `VITE_API_BASE_URL` is set as an environment variable on the Frontend service before building |

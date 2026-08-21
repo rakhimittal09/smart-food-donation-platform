@@ -137,13 +137,13 @@ const getReports = async (req, res, next) => {
     const totalReceivers = await User.countDocuments({ role: 'receiver' });
     const totalDonations = await FoodDonation.countDocuments();
     const completedDonations = await FoodDonation.countDocuments({
-      status: { $in: ['Delivered', 'Completed'] },
+      status: 'Delivered',
     });
     const activeDonations = await FoodDonation.countDocuments({
-      status: { $in: ['Available', 'Requested', 'Approved', 'Pickup Scheduled'] },
+      status: { $in: ['Available', 'Pending', 'Accepted', 'Picked Up'] },
     });
     const totalRequests = await FoodRequest.countDocuments();
-    const completedPickups = await FoodRequest.countDocuments({ status: 'Completed' });
+    const completedPickups = await FoodRequest.countDocuments({ status: 'Delivered' });
 
     // 2. Donations by Category
     const donationsByCategory = await FoodDonation.aggregate([

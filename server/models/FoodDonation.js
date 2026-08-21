@@ -103,19 +103,17 @@ const foodDonationSchema = new mongoose.Schema(
       type: String,
       enum: [
         'Available',
-        'Requested',
-        'Approved',
-        'Pickup Scheduled',
+        'Pending',
+        'Accepted',
         'Picked Up',
         'Delivered',
-        'Completed',
         'Expired',
         'Cancelled',
       ],
       default: 'Available',
     },
   },
-  { timestamps: true }
+  { timestamps: true, collection: 'foodlistings' }
 );
 
 // Indexing for rapid search & filtering

@@ -1,0 +1,4 @@
+# This file ensures the uploads/ directory is tracked by Git.
+# Uploaded food images will be stored here at runtime.
+# On free Render plans, uploaded files reset on redeploy.
+# For persistent uploads, integrate Cloudinary (see DEPLOYMENT_GUIDE.md).

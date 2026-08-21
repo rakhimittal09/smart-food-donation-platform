@@ -155,7 +155,8 @@ Base URL: `http://localhost:5000/api`
 
 ### `PUT /donations/:id/status`
 * **Access:** Private (Donor / Admin)
-* **Request Body:** `{ "status": "Approved" }`
+* **Valid status values:** `Available`, `Pending`, `Accepted`, `Picked Up`, `Delivered`, `Expired`, `Cancelled`
+* **Request Body:** `{ "status": "Cancelled" }`
 
 ### `DELETE /donations/:id`
 * **Access:** Private (Donor / Admin)
@@ -189,10 +190,11 @@ Base URL: `http://localhost:5000/api`
 
 ### `PUT /requests/:id/status`
 * **Access:** Private (Donor, Receiver, Admin)
+* **Status flow:** `Pending → Accepted → Picked Up → Delivered` (also `Rejected` by Donor, `Cancelled` by Receiver)
 * **Request Body:**
 ```json
 {
-  "status": "Approved",
+  "status": "Accepted",
   "rejectionReason": "",
   "pickupPersonName": "Ramesh Kumar",
   "pickupPersonPhone": "9812345678",

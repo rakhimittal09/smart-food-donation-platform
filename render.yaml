@@ -1,34 +1,54 @@
 services:
-  # Backend Web Service
+  # ─────────────────────────────────────────────
+  # OPTION A — Backend Web Service (Node.js API)
+  # ─────────────────────────────────────────────
   - type: web
     name: smart-food-donation-backend
     env: node
     plan: free
-    buildCommand: cd server && npm install
-    startCommand: cd server && node server.js
+    region: singapore          # closest to India
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5000
       - key: MONGO_URI
-        sync: false
+        sync: false            # set manually in Render dashboard
       - key: JWT_SECRET
-        generateValue: true
+        generateValue: true    # Render auto-generates a secure random value
+      - key: JWT_EXPIRE
+        value: 7d
       - key: CLIENT_URL
-        sync: false
+        sync: false            # set to your frontend URL after first deploy
 
+<<<<<<< HEAD
   # Frontend Static Site
   - type: web
     runtime: static
+=======
+  # ─────────────────────────────────────────────
+  # OPTION A — Frontend Static Site (React/Vite)
+  # ─────────────────────────────────────────────
+  - type: static
+>>>>>>> acbbed3 (Update Smart Food Donation Platform)
     name: smart-food-donation-frontend
-    buildCommand: cd client && npm install && npm run build
-    staticPublishPath: ./client/dist
+    plan: free
+    region: singapore
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    pullRequestPreviewsEnabled: false
     routes:
-      - type: rewrite
+      - type: rewrite          # SPA fallback — all routes → index.html
         source: /*
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
+<<<<<<< HEAD
         sync: false
         
+=======
+        sync: false            # set to: https://smart-food-donation-backend.onrender.com/api
+>>>>>>> acbbed3 (Update Smart Food Donation Platform)

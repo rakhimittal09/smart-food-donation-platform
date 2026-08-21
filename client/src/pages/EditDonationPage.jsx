@@ -189,10 +189,10 @@ const EditDonationPage = () => {
                 <label className="form-label">Status</label>
                 <select name="status" className="form-select" value={formData.status} onChange={handleChange}>
                   <option value="Available">Available</option>
-                  <option value="Requested">Requested</option>
-                  <option value="Approved">Approved</option>
-                  <option value="Pickup Scheduled">Pickup Scheduled</option>
-                  <option value="Completed">Completed</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Accepted">Accepted</option>
+                  <option value="Picked Up">Picked Up</option>
+                  <option value="Delivered">Delivered</option>
                   <option value="Cancelled">Cancelled</option>
                 </select>
               </div>

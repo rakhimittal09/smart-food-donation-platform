@@ -25,7 +25,7 @@ const foodRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['Pending', 'Approved', 'Pickup Scheduled', 'Out for Pickup', 'Rejected', 'Cancelled', 'Completed'],
+      enum: ['Pending', 'Accepted', 'Picked Up', 'Delivered', 'Rejected', 'Cancelled'],
       default: 'Pending',
     },
     pickupDetails: {
@@ -35,7 +35,6 @@ const foodRequestSchema = new mongoose.Schema(
       pickupPersonPhone: { type: String, default: '' },
       vehicleNumber: { type: String, default: '' },
       notes: { type: String, default: '' },
-      otp: { type: String, default: '' },
       timeline: [
         {
           status: { type: String, required: true },
@@ -64,7 +63,7 @@ const foodRequestSchema = new mongoose.Schema(
       default: '',
     },
   },
-  { timestamps: true }
+  { timestamps: true, collection: 'pickuprequests' }
 );
 
 foodRequestSchema.index({ donation: 1, receiver: 1 });

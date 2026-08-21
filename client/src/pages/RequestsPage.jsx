@@ -66,9 +66,9 @@ const RequestsPage = () => {
     if (!selectedReq) return;
     try {
       setActionLoading(true);
-      const res = await requestService.updateRequestStatus(selectedReq._id, { status: 'Approved' });
+      const res = await requestService.updateRequestStatus(selectedReq._id, { status: 'Accepted' });
       if (res.success) {
-        showToast('success', 'Request approved! Pickup scheduled.');
+        showToast('success', 'Pickup request accepted.');
         setShowApproveModal(false);
         fetchRequests(pagination.page);
       }
@@ -130,13 +130,13 @@ const RequestsPage = () => {
               {isDonor ? 'Received Food Requests' : 'My Food Requests & Pickups'}
             </h1>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-              Track requests, approvals, pickup time slots, and verification OTPs.
+              Track pickup requests through Pending → Accepted → Picked Up → Delivered.
             </p>
           </div>
 
           {/* Status Filters */}
           <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-            {['all', 'Pending', 'Approved', 'Completed', 'Rejected', 'Cancelled'].map((st) => (
+            {['all', 'Pending', 'Accepted', 'Picked Up', 'Delivered', 'Rejected', 'Cancelled'].map((st) => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
@@ -168,7 +168,7 @@ const RequestsPage = () => {
                       <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)' }}>
                         {req.donation?.foodName || 'Food Item'}
                       </h3>
-                      <span className={`badge ${req.status === 'Approved' ? 'badge-approved' : req.status === 'Pending' ? 'badge-pending' : req.status === 'Completed' ? 'badge-completed' : 'badge-rejected'}`}>
+                      <span className={`badge ${req.status === 'Accepted' ? 'badge-approved' : req.status === 'Pending' ? 'badge-pending' : req.status === 'Delivered' || req.status === 'Picked Up' ? 'badge-completed' : 'badge-rejected'}`}>
                         ● {req.status}
                       </span>
                     </div>

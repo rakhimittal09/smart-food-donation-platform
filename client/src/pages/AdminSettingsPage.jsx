@@ -173,7 +173,7 @@ const AdminSettingsPage = () => {
                   style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                 />
                 <label htmlFor="requireOtp" style={{ fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer' }}>
-                  Enforce mandatory 4-digit OTP PIN verification on all food handovers
+                  Require pickup confirmation before marking a listing as Delivered
                 </label>
               </div>
             </div>

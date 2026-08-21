@@ -93,6 +93,7 @@ const getDonations = async (req, res, next) => {
       category,
       foodType,
       city,
+      location,
       status,
       includeExpired,
       page = 1,
@@ -125,19 +126,32 @@ const getDonations = async (req, res, next) => {
       query.foodType = foodType;
     }
 
-    // City filter
-    if (city && city !== 'all') {
-      query.city = { $regex: city, $options: 'i' };
+    // Location filter (city, state, or pickup address)
+    const locationTerm = location || city;
+    if (locationTerm && locationTerm !== 'all') {
+      query.$or = [
+        { city: { $regex: locationTerm, $options: 'i' } },
+        { state: { $regex: locationTerm, $options: 'i' } },
+        { pickupAddress: { $regex: locationTerm, $options: 'i' } },
+      ];
     }
 
-    // Search term
     if (search) {
-      query.$or = [
-        { foodName: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { city: { $regex: search, $options: 'i' } },
-        { pickupAddress: { $regex: search, $options: 'i' } },
-      ];
+      const searchFilter = {
+        $or: [
+          { foodName: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } },
+          { city: { $regex: search, $options: 'i' } },
+          { pickupAddress: { $regex: search, $options: 'i' } },
+          { foodType: { $regex: search, $options: 'i' } },
+        ],
+      };
+      if (query.$or) {
+        query.$and = [{ $or: query.$or }, searchFilter];
+        delete query.$or;
+      } else {
+        Object.assign(query, searchFilter);
+      }
     }
 
     const pageNum = parseInt(page, 10);
@@ -282,7 +296,7 @@ const updateDonation = async (req, res, next) => {
     }
 
     // Prevent updates if already Picked Up / Completed
-    if (['Picked Up', 'Delivered', 'Completed'].includes(donation.status) && req.user.role !== 'admin') {
+    if (['Picked Up', 'Delivered'].includes(donation.status) && req.user.role !== 'admin') {
       return res.status(400).json({
         success: false,
         message: 'Cannot modify a donation that is already picked up or completed.',
@@ -372,12 +386,10 @@ const updateDonationStatus = async (req, res, next) => {
 
     const allowedStatuses = [
       'Available',
-      'Requested',
-      'Approved',
-      'Pickup Scheduled',
+      'Pending',
+      'Accepted',
       'Picked Up',
       'Delivered',
-      'Completed',
       'Expired',
       'Cancelled',
     ];

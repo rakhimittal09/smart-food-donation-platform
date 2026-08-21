@@ -1,33 +1,32 @@
 import React from 'react';
-import { CheckCircle2, Clock, Truck, ShieldCheck, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock, Truck, PackageCheck, XCircle } from 'lucide-react';
 
 const Timeline = ({ currentStatus, timeline = [], rejectionReason = '' }) => {
   const steps = [
-    { key: 'Requested', label: 'Request Placed', icon: Clock, desc: 'NGO submitted food request' },
-    { key: 'Approved', label: 'Donor Approved', icon: CheckCircle2, desc: 'Donor accepted request & confirmed slot' },
-    { key: 'Scheduled', label: 'Pickup In Progress', icon: Truck, desc: 'Vehicle / Volunteer out for collection' },
-    { key: 'Completed', label: 'Delivered & Distributed', icon: ShieldCheck, desc: 'Meals safely received & shared' },
+    { key: 'Pending', label: 'Pending', icon: Clock, desc: 'NGO requested pickup' },
+    { key: 'Accepted', label: 'Accepted', icon: CheckCircle2, desc: 'Donor accepted the request' },
+    { key: 'Picked Up', label: 'Picked Up', icon: Truck, desc: 'Food collected from donor' },
+    { key: 'Delivered', label: 'Delivered', icon: PackageCheck, desc: 'Food delivered to those in need' },
   ];
+
+  const order = ['Pending', 'Accepted', 'Picked Up', 'Delivered'];
 
   const getStepStatus = (stepKey) => {
     if (currentStatus === 'Rejected' || currentStatus === 'Cancelled') {
-      return stepKey === 'Requested' ? 'completed' : 'cancelled';
+      return stepKey === 'Pending' ? 'completed' : 'cancelled';
     }
 
-    const order = ['Pending', 'Requested', 'Approved', 'Pickup Scheduled', 'Picked Up', 'Delivered', 'Completed'];
     const currentIdx = order.indexOf(currentStatus);
+    const stepIdx = order.indexOf(stepKey);
 
-    if (stepKey === 'Requested') return currentIdx >= 0 ? 'completed' : 'upcoming';
-    if (stepKey === 'Approved') return currentIdx >= 2 ? 'completed' : currentIdx === 1 ? 'active' : 'upcoming';
-    if (stepKey === 'Scheduled') return currentIdx >= 3 ? 'completed' : currentIdx === 2 ? 'active' : 'upcoming';
-    if (stepKey === 'Completed') return currentIdx >= 5 ? 'completed' : 'upcoming';
-
+    if (currentIdx === -1) return 'upcoming';
+    if (currentIdx > stepIdx) return 'completed';
+    if (currentIdx === stepIdx) return 'active';
     return 'upcoming';
   };
 
   return (
     <div style={{ margin: '1.5rem 0' }}>
-      {/* Visual Stepper */}
       <div
         style={{
           display: 'flex',
@@ -36,7 +35,6 @@ const Timeline = ({ currentStatus, timeline = [], rejectionReason = '' }) => {
           marginBottom: '2.5rem',
         }}
       >
-        {/* Background track line */}
         <div
           style={{
             position: 'absolute',
@@ -49,10 +47,9 @@ const Timeline = ({ currentStatus, timeline = [], rejectionReason = '' }) => {
           }}
         />
 
-        {steps.map((step, idx) => {
+        {steps.map((step) => {
           const status = getStepStatus(step.key);
           const Icon = step.icon;
-
           const isCompleted = status === 'completed';
           const isActive = status === 'active';
           const isCancelled = status === 'cancelled';
@@ -70,7 +67,6 @@ const Timeline = ({ currentStatus, timeline = [], rejectionReason = '' }) => {
                 flex: 1,
               }}
             >
-              {/* Step Node */}
               <div
                 style={{
                   width: '48px',
@@ -96,7 +92,6 @@ const Timeline = ({ currentStatus, timeline = [], rejectionReason = '' }) => {
                 {isCancelled ? <XCircle size={22} /> : <Icon size={22} />}
               </div>
 
-              {/* Title & Desc */}
               <div style={{ fontWeight: 700, fontSize: '0.875rem', color: isCompleted || isActive ? 'var(--text-main)' : 'var(--text-muted)' }}>
                 {step.label}
               </div>
@@ -108,7 +103,6 @@ const Timeline = ({ currentStatus, timeline = [], rejectionReason = '' }) => {
         })}
       </div>
 
-      {/* If Rejected or Cancelled Warning Card */}
       {(currentStatus === 'Rejected' || currentStatus === 'Cancelled') && (
         <div
           style={{
@@ -127,13 +121,12 @@ const Timeline = ({ currentStatus, timeline = [], rejectionReason = '' }) => {
           <div>
             <div style={{ fontWeight: 700 }}>Request {currentStatus}</div>
             <div style={{ fontSize: '0.85rem', marginTop: '0.2rem' }}>
-              {rejectionReason ? `Reason: ${rejectionReason}` : 'This food request has been closed.'}
+              {rejectionReason ? `Reason: ${rejectionReason}` : 'This pickup request has been closed.'}
             </div>
           </div>
         </div>
       )}
 
-      {/* Detailed Action Timeline Logs */}
       {timeline.length > 0 && (
         <div className="card" style={{ padding: '1.25rem' }}>
           <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '1rem' }}>Activity History</h4>

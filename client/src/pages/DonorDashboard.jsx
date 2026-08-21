@@ -62,10 +62,10 @@ const DonorDashboard = () => {
     try {
       setActionLoading(true);
       const res = await requestService.updateRequestStatus(selectedRequest._id, {
-        status: 'Approved',
+        status: 'Accepted',
       });
       if (res.success) {
-        showToast('success', 'Food request approved! Pickup instructions notified to receiver.');
+        showToast('success', 'Pickup request accepted.');
         setShowApproveModal(false);
         fetchDashboardData();
       }
@@ -211,7 +211,7 @@ const DonorDashboard = () => {
                         Requested by: <strong>{req.receiver?.organizationName || req.receiver?.name}</strong>
                       </div>
                     </div>
-                    <span className={`badge ${req.status === 'Pending' ? 'badge-pending' : req.status === 'Approved' ? 'badge-approved' : 'badge-completed'}`}>
+                    <span className={`badge ${req.status === 'Pending' ? 'badge-pending' : req.status === 'Accepted' ? 'badge-approved' : 'badge-completed'}`}>
                       {req.status}
                     </span>
                   </div>
@@ -294,7 +294,7 @@ const DonorDashboard = () => {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className={`badge ${item.status === 'Available' ? 'badge-available' : item.status === 'Approved' ? 'badge-approved' : 'badge-scheduled'}`}>
+                    <span className={`badge ${item.status === 'Available' ? 'badge-available' : item.status === 'Accepted' ? 'badge-approved' : 'badge-scheduled'}`}>
                       {item.status}
                     </span>
                     <Link to={`/donations/${item._id}`} className="btn btn-secondary btn-icon" title="View details">

@@ -53,13 +53,12 @@ const FoodCard = ({ donation, onRequestClick, isDonorView = false }) => {
     switch (st) {
       case 'Available':
         return <span className="badge badge-available">● Available</span>;
-      case 'Requested':
-        return <span className="badge badge-requested">● Requested</span>;
-      case 'Approved':
-        return <span className="badge badge-approved">● Approved</span>;
-      case 'Pickup Scheduled':
-        return <span className="badge badge-scheduled">● Scheduled</span>;
-      case 'Completed':
+      case 'Pending':
+        return <span className="badge badge-pending">● Pending</span>;
+      case 'Accepted':
+        return <span className="badge badge-approved">● Accepted</span>;
+      case 'Picked Up':
+        return <span className="badge badge-scheduled">● Picked Up</span>;
       case 'Delivered':
         return <span className="badge badge-completed">✓ Delivered</span>;
       default:

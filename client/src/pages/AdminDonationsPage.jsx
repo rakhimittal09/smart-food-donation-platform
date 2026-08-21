@@ -96,7 +96,7 @@ const AdminDonationsPage = () => {
           </div>
 
           <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-            {['all', 'Available', 'Requested', 'Approved', 'Completed', 'Expired', 'Cancelled'].map((st) => (
+            {['all', 'Available', 'Pending', 'Accepted', 'Picked Up', 'Delivered', 'Expired', 'Cancelled'].map((st) => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
@@ -168,10 +168,10 @@ const AdminDonationsPage = () => {
                         style={{ padding: '0.3rem 0.5rem', fontSize: '0.775rem', width: 'auto' }}
                       >
                         <option value="Available">Available</option>
-                        <option value="Requested">Requested</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Pickup Scheduled">Scheduled</option>
-                        <option value="Completed">Completed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="Picked Up">Picked Up</option>
+                        <option value="Delivered">Delivered</option>
                         <option value="Expired">Expired</option>
                         <option value="Cancelled">Cancelled</option>
                       </select>

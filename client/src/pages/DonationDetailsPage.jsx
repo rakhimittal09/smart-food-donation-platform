@@ -351,7 +351,7 @@ const DonationDetailsPage = () => {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span className={`badge ${r.status === 'Approved' ? 'badge-approved' : r.status === 'Pending' ? 'badge-pending' : 'badge-completed'}`}>
+                    <span className={`badge ${r.status === 'Accepted' ? 'badge-approved' : r.status === 'Pending' ? 'badge-pending' : 'badge-completed'}`}>
                       {r.status}
                     </span>
                     <Link to={`/pickup-tracking/${r._id}`} className="btn btn-secondary btn-sm">

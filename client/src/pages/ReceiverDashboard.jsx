@@ -107,14 +107,14 @@ const ReceiverDashboard = () => {
           subtext="Pending donor approval"
         />
         <StatisticsCard
-          title="Approved Pickups"
+          title="Accepted Pickups"
           value={stats?.approvedRequests || 0}
           icon={Truck}
           variant="sky"
           subtext="Ready for collection"
         />
         <StatisticsCard
-          title="Completed Deliveries"
+          title="Delivered Pickups"
           value={stats?.completedPickups || 0}
           icon={CheckCircle}
           variant="indigo"
@@ -154,7 +154,7 @@ const ReceiverDashboard = () => {
         <div className="card-header">
           <div>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>My Recent Food Requests & Pickup Status</h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Real-time status updates and OTP verification</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Pending → Accepted → Picked Up → Delivered</p>
           </div>
           <Link to="/requests" className="btn btn-secondary btn-sm">
             All Requests
@@ -192,12 +192,12 @@ const ReceiverDashboard = () => {
                       <strong>{req.requestedQuantity}</strong> {req.donation?.unit || 'units'}
                     </td>
                     <td>
-                      <span className={`badge ${req.status === 'Approved' ? 'badge-approved' : req.status === 'Pending' ? 'badge-pending' : req.status === 'Completed' ? 'badge-completed' : 'badge-rejected'}`}>
+                      <span className={`badge ${req.status === 'Accepted' ? 'badge-approved' : req.status === 'Pending' ? 'badge-pending' : req.status === 'Delivered' ? 'badge-completed' : 'badge-rejected'}`}>
                         {req.status}
                       </span>
                     </td>
                     <td>
-                      {req.status === 'Approved' ? (
+                      {req.status === 'Accepted' || req.status === 'Picked Up' ? (
                         <Link
                           to={`/pickup-tracking/${req._id}`}
                           className="btn btn-primary btn-sm"

@@ -2,14 +2,17 @@
   "name": "smart-food-donation-platform",
   "version": "1.0.0",
   "private": true,
-  "description": "Smart Food Donation Platform (MERN Stack)",
+  "description": "Smart Food Donation Platform (MERN Stack) — Capstone Project",
   "scripts": {
     "install:all": "npm install --prefix server && npm install --prefix client",
     "build": "npm install --prefix client && npm run build --prefix client",
     "start": "node server/server.js",
     "server": "npm run dev --prefix server",
     "client": "npm run dev --prefix client",
-    "seed": "npm run seed --prefix server"
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "seed": "npm run seed --prefix server",
+    "render:build": "npm run install:all && npm run build",
+    "render:start": "npm start"
   },
   "keywords": [
     "mern",
@@ -20,5 +23,12 @@
     "mongodb"
   ],
   "author": "Rakhi Mittal",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }

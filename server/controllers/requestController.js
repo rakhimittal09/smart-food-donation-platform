@@ -23,7 +23,7 @@ const createRequest = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Food donation not found' });
     }
 
-    if (donation.status !== 'Available' && donation.status !== 'Requested') {
+    if (donation.status !== 'Available' && donation.status !== 'Pending') {
       return res.status(400).json({
         success: false,
         message: `Cannot request this food. Current status is ${donation.status}.`,
@@ -57,9 +57,6 @@ const createRequest = async (req, res, next) => {
       });
     }
 
-    // Generate random 4-digit OTP for pickup verification
-    const pickupOtp = Math.floor(1000 + Math.random() * 9000).toString();
-
     const request = await FoodRequest.create({
       donation: donationId,
       receiver: req.user._id,
@@ -74,12 +71,11 @@ const createRequest = async (req, res, next) => {
         pickupPersonPhone: pickupPersonPhone || req.user.phone,
         vehicleNumber: vehicleNumber || '',
         notes: notes || '',
-        otp: pickupOtp,
         timeline: [
           {
-            status: 'Requested',
-            title: 'Request Submitted',
-            description: `NGO requested ${requestedQuantity} ${donation.unit}`,
+            status: 'Pending',
+            title: 'Pickup Requested',
+            description: `NGO requested ${requestedQuantity} ${donation.unit} of "${donation.foodName}"`,
             timestamp: new Date(),
             updatedBy: req.user._id,
           },
@@ -87,9 +83,8 @@ const createRequest = async (req, res, next) => {
       },
     });
 
-    // Update donation status if still Available
     if (donation.status === 'Available') {
-      donation.status = 'Requested';
+      donation.status = 'Pending';
       await donation.save();
     }
 
@@ -217,13 +212,11 @@ const updateRequestStatus = async (req, res, next) => {
   try {
     const {
       status,
-      otp,
       rejectionReason,
       pickupPersonName,
       pickupPersonPhone,
       vehicleNumber,
       notes,
-      timelineNote,
     } = req.body;
 
     const request = await FoodRequest.findById(req.params.id)
@@ -246,28 +239,31 @@ const updateRequestStatus = async (req, res, next) => {
       });
     }
 
-    // Role-specific actions
-    if (status === 'Approved') {
+    // Pickup lifecycle: Pending → Accepted → Picked Up → Delivered
+    if (status === 'Accepted') {
       if (!isDonor && !isAdmin) {
-        return res.status(403).json({ success: false, message: 'Only donors can approve requests.' });
+        return res.status(403).json({ success: false, message: 'Only donors can accept pickup requests.' });
       }
-      request.status = 'Approved';
+      if (request.status !== 'Pending') {
+        return res.status(400).json({ success: false, message: 'Only pending requests can be accepted.' });
+      }
+      request.status = 'Accepted';
       request.approvedAt = new Date();
-      donation.status = 'Approved';
+      donation.status = 'Accepted';
       await donation.save();
 
       request.pickupDetails.timeline.push({
-        status: 'Approved',
-        title: 'Request Approved',
-        description: 'Donor approved the food request. Pickup can be scheduled.',
+        status: 'Accepted',
+        title: 'Pickup Accepted',
+        description: 'Donor accepted the pickup request. NGO may collect the food.',
         timestamp: new Date(),
         updatedBy: req.user._id,
       });
 
       await sendNotification({
         userId: request.receiver._id,
-        title: 'Food Request Approved! 🎉',
-        message: `Your request for "${donation.foodName}" was approved. Please prepare for pickup.`,
+        title: 'Pickup Request Accepted',
+        message: `Your request for "${donation.foodName}" was accepted. Please proceed with pickup.`,
         type: 'success',
         link: `/pickup-tracking/${request._id}`,
       });
@@ -313,94 +309,71 @@ const updateRequestStatus = async (req, res, next) => {
         timestamp: new Date(),
         updatedBy: req.user._id,
       });
-    } else if (status === 'Pickup Scheduled') {
-      if (!isDonor && !isAdmin) {
-        return res.status(403).json({ success: false, message: 'Only donors can schedule pickup.' });
+    } else if (status === 'Picked Up') {
+      if (!isReceiver && !isAdmin) {
+        return res.status(403).json({ success: false, message: 'Only the receiving NGO can mark food as picked up.' });
       }
-      request.status = 'Pickup Scheduled';
-      donation.status = 'Pickup Scheduled';
+      if (request.status !== 'Accepted') {
+        return res.status(400).json({ success: false, message: 'Pickup can be marked only after the request is accepted.' });
+      }
+      request.status = 'Picked Up';
+      donation.status = 'Picked Up';
       await donation.save();
 
       request.pickupDetails.timeline.push({
-        status: 'Pickup Scheduled',
-        title: 'Pickup Scheduled',
-        description: 'Donor has confirmed and scheduled the pickup. Volunteer en route soon.',
+        status: 'Picked Up',
+        title: 'Food Picked Up',
+        description: 'NGO collected the surplus food from the donor location.',
         timestamp: new Date(),
         updatedBy: req.user._id,
       });
 
       await sendNotification({
-        userId: request.receiver._id,
-        title: 'Pickup Scheduled 📅',
-        message: `Pickup for "${donation.foodName}" has been scheduled. Please prepare your volunteer.`,
+        userId: donation.donor,
+        title: 'Food Picked Up',
+        message: `${request.receiver.organizationName || request.receiver.name} has picked up "${donation.foodName}".`,
         type: 'info',
         link: `/pickup-tracking/${request._id}`,
       });
-    } else if (status === 'Out for Pickup') {
-      if (!isReceiver && !isAdmin) {
-        return res.status(403).json({ success: false, message: 'Only the receiver can mark as Out for Pickup.' });
+    } else if (status === 'Delivered') {
+      if (!isDonor && !isReceiver && !isAdmin) {
+        return res.status(403).json({ success: false, message: 'You cannot mark this pickup as delivered.' });
       }
-      request.status = 'Out for Pickup';
-      donation.status = 'Pickup Scheduled';
-      await donation.save();
-
-      request.pickupDetails.timeline.push({
-        status: 'Out for Pickup',
-        title: 'Volunteer Out for Pickup',
-        description: 'NGO volunteer is on the way to collect the food donation.',
-        timestamp: new Date(),
-        updatedBy: req.user._id,
-      });
-
-      await sendNotification({
-        userId: donation.donor,
-        title: 'Volunteer En Route 🚚',
-        message: `A volunteer from ${request.receiver.organizationName || request.receiver.name} is on the way to collect "${donation.foodName}".`,
-        type: 'info',
-        link: `/requests`,
-      });
-    } else if (status === 'Completed') {
-      if (!isDonor && !isAdmin) {
-        return res.status(403).json({ success: false, message: 'Only the donor or administrator can confirm food handover completion.' });
+      if (request.status !== 'Picked Up') {
+        return res.status(400).json({ success: false, message: 'Delivery can be confirmed only after pickup.' });
       }
-
-      // Verify OTP if donor is confirming (or if otp is provided)
-      if (isDonor && !isAdmin) {
-        if (!otp || otp.toString().trim() !== request.pickupDetails?.otp?.toString().trim()) {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid pickup verification PIN/OTP. Please enter the 4-digit code provided by the NGO receiver.',
-          });
-        }
-      }
-
-      request.status = 'Completed';
+      request.status = 'Delivered';
       request.completedAt = new Date();
-      donation.status = 'Completed';
+      donation.status = 'Delivered';
       await donation.save();
 
       request.pickupDetails.timeline.push({
-        status: 'Completed',
-        title: 'Food Handover Completed',
-        description: 'Food was successfully verified with pickup OTP and distributed.',
+        status: 'Delivered',
+        title: 'Food Delivered',
+        description: 'Surplus food was delivered to beneficiaries by the NGO.',
         timestamp: new Date(),
         updatedBy: req.user._id,
       });
 
       await sendNotification({
         userId: donation.donor,
-        title: 'Donation Completed! 🌟',
-        message: `"${donation.foodName}" has been successfully collected and distributed to those in need!`,
+        title: 'Donation Delivered',
+        message: `"${donation.foodName}" has been delivered to those in need.`,
         type: 'success',
         link: `/donations/${donation._id}`,
       });
 
       await sendNotification({
         userId: request.receiver._id,
-        title: 'Pickup Completed',
-        message: `Thank you for distributing "${donation.foodName}" to the community!`,
+        title: 'Pickup Delivered',
+        message: `Thank you for delivering "${donation.foodName}" to the community.`,
         type: 'success',
         link: `/requests`,
+      });
+    } else if (status && !['Rejected', 'Cancelled'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status. Use Pending → Accepted → Picked Up → Delivered.',
       });
     }
 
@@ -412,17 +385,19 @@ const updateRequestStatus = async (req, res, next) => {
 
     await request.save();
 
-    await logActivity({
-      userId: req.user._id,
-      action: `REQUEST_${status.toUpperCase()}`,
-      description: `Request for "${donation.foodName}" updated to ${status}`,
-      module: 'REQUEST',
-      ipAddress: req.ip,
-    });
+    if (status) {
+      await logActivity({
+        userId: req.user._id,
+        action: `PICKUP_${status.toUpperCase().replace(/\s+/g, '_')}`,
+        description: `Pickup for "${donation.foodName}" updated to ${status}`,
+        module: 'PICKUP',
+        ipAddress: req.ip,
+      });
+    }
 
     res.json({
       success: true,
-      message: `Request status updated to ${status}`,
+      message: status ? `Request status updated to ${status}` : 'Pickup details updated',
       data: request,
     });
   } catch (error) {

@@ -138,11 +138,11 @@ const getDashboardStats = async (req, res, next) => {
       const totalDonations = await FoodDonation.countDocuments({ donor: userId });
       const activeDonations = await FoodDonation.countDocuments({
         donor: userId,
-        status: { $in: ['Available', 'Requested', 'Approved', 'Pickup Scheduled'] },
+        status: { $in: ['Available', 'Pending', 'Accepted', 'Picked Up'] },
       });
       const completedDonations = await FoodDonation.countDocuments({
         donor: userId,
-        status: { $in: ['Delivered', 'Completed'] },
+        status: 'Delivered',
       });
 
       // Get user's donations IDs
@@ -195,11 +195,11 @@ const getDashboardStats = async (req, res, next) => {
       });
       const approvedRequests = await FoodRequest.countDocuments({
         receiver: userId,
-        status: 'Approved',
+        status: 'Accepted',
       });
       const completedPickups = await FoodRequest.countDocuments({
         receiver: userId,
-        status: 'Completed',
+        status: 'Delivered',
       });
 
       const recentRequests = await FoodRequest.find({ receiver: userId })
@@ -243,14 +243,14 @@ const getDashboardStats = async (req, res, next) => {
       const totalReceivers = await User.countDocuments({ role: 'receiver' });
       const totalDonations = await FoodDonation.countDocuments();
       const activeDonations = await FoodDonation.countDocuments({
-        status: { $in: ['Available', 'Requested', 'Approved', 'Pickup Scheduled'] },
+        status: { $in: ['Available', 'Pending', 'Accepted', 'Picked Up'] },
       });
       const completedDonations = await FoodDonation.countDocuments({
-        status: { $in: ['Delivered', 'Completed'] },
+        status: 'Delivered',
       });
       const totalRequests = await FoodRequest.countDocuments();
       const pendingRequests = await FoodRequest.countDocuments({ status: 'Pending' });
-      const completedPickups = await FoodRequest.countDocuments({ status: 'Completed' });
+      const completedPickups = await FoodRequest.countDocuments({ status: 'Delivered' });
 
       const recentActivities = await ActivityLog.find()
         .populate('user', 'name role email')

@@ -48,7 +48,7 @@ const HomePage = () => {
     },
     {
       q: 'How does pickup coordination and verification work?',
-      a: 'When an NGO requests food and the donor approves, both parties receive a scheduled time window and a secure 4-digit OTP. The receiver presents the OTP upon pickup to confirm safe delivery.',
+      a: 'When an NGO requests a pickup, the donor accepts it. The status then moves from Pending to Accepted, then Picked Up, and finally Delivered. Each step is recorded in the donation activity history.',
     },
     {
       q: 'Is there any fee to use the platform?',
@@ -140,7 +140,7 @@ const HomePage = () => {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                   <CheckCircle size={18} style={{ color: 'var(--primary-600)' }} />
-                  <span>OTP Secure Handover</span>
+                  <span>Tracked Pickup Delivery</span>
                 </div>
               </div>
             </div>
@@ -338,9 +338,9 @@ const HomePage = () => {
               >
                 <Truck size={26} />
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '0.5rem' }}>3. Secure OTP Pickup</h3>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '0.5rem' }}>3. Track Pickup</h3>
               <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-                Donor approves, and an authorized volunteer conducts pickup with 4-digit verification code.
+                Donor accepts the request. Status moves Pending → Accepted → Picked Up → Delivered, with a full activity log.
               </p>
             </div>
 

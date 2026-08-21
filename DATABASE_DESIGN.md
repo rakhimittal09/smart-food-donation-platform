@@ -69,7 +69,7 @@ Stores definitions and permission scopes for platform roles.
 
 ---
 
-### 3. `fooddonations` Collection
+### 3. `foodlistings` Collection
 Represents surplus food listings published by donors.
 
 | Field | Type | Required | Notes |
@@ -94,9 +94,10 @@ Represents surplus food listings published by donors.
 | `contactPhone` | String | No | Phone number |
 | `specialInstructions`| String | No | Handling, storage, container notes |
 | `image` | String | No | Uploaded image path or URL |
-| `status` | String | Yes | Enum: `['Available', 'Requested', 'Approved', 'Pickup Scheduled', 'Picked Up', 'Delivered', 'Completed', 'Expired', 'Cancelled']` |
+| `status` | String | Yes | Enum: `['Available', 'Pending', 'Accepted', 'Picked Up', 'Delivered', 'Expired', 'Cancelled']` |
 
 * **Indexes:** `{ foodName: 'text', description: 'text', city: 'text' }`, `{ status: 1, expiryDate: 1, city: 1, category: 1 }`
+
 
 ---
 
@@ -110,7 +111,7 @@ Tracks requests made by NGOs to claim food donations and the subsequent pickup s
 | `receiver` | ObjectId | Yes | Ref: `User` (NGO) |
 | `requestedQuantity`| Number | Yes | Positive integer |
 | `message` | String | Yes | Distribution plan & rationale |
-| `status` | String | Yes | Enum: `['Pending', 'Approved', 'Rejected', 'Cancelled', 'Completed']` |
+| `status` | String | Yes | Enum: `['Pending', 'Accepted', 'Picked Up', 'Delivered', 'Rejected', 'Cancelled']` |
 | `pickupDetails` | Object | Yes | Embedded subdocument: |
 | ↳ `scheduledDate` | Date | No | Confirmed pickup date |
 | ↳ `scheduledTime` | String | No | Confirmed time slot |

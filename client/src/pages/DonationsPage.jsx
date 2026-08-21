@@ -27,7 +27,7 @@ const DonationsPage = () => {
     search: '',
     category: 'all',
     foodType: 'all',
-    city: 'all',
+    location: '',
     status: 'Available',
     page: 1,
   });
@@ -49,7 +49,7 @@ const DonationsPage = () => {
       if (filters.search) params.search = filters.search;
       if (filters.category && filters.category !== 'all') params.category = filters.category;
       if (filters.foodType && filters.foodType !== 'all') params.foodType = filters.foodType;
-      if (filters.city && filters.city !== 'all') params.city = filters.city;
+      if (filters.location) params.location = filters.location;
       if (filters.status && filters.status !== 'all') params.status = filters.status;
 
       const res = await donationService.getDonations(params);
@@ -84,7 +84,7 @@ const DonationsPage = () => {
       search: '',
       category: 'all',
       foodType: 'all',
-      city: 'all',
+      location: '',
       status: 'Available',
       page: 1,
     });
