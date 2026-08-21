@@ -3,7 +3,6 @@
 > A modern, full-stack web ecosystem built on the **MERN (MongoDB, Express.js, React.js, Node.js)** stack to eliminate surplus food waste and connect food donors (restaurants, caterers, banquets, individuals) directly with verified receiving NGOs, community shelters, and distribution networks.
 
 ---
-
 ## 🌟 Executive Summary
 
 * **Project Title:** Smart Food Donation Platform (NourishLink)
