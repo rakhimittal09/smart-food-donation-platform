@@ -1,6 +1,6 @@
 services:
   # ─────────────────────────────────────────────
-  # OPTION A — Backend Web Service (Node.js API)
+  # Backend Web Service (Node.js API)
   # ─────────────────────────────────────────────
   - type: web
     name: smart-food-donation-backend
@@ -23,16 +23,10 @@ services:
       - key: CLIENT_URL
         sync: false            # set to your frontend URL after first deploy
 
-<<<<<<< HEAD
-  # Frontend Static Site
-  - type: web
-    runtime: static
-=======
   # ─────────────────────────────────────────────
-  # OPTION A — Frontend Static Site (React/Vite)
+  # Frontend Static Site (React/Vite)
   # ─────────────────────────────────────────────
   - type: static
->>>>>>> acbbed3 (Update Smart Food Donation Platform)
     name: smart-food-donation-frontend
     plan: free
     region: singapore
@@ -46,9 +40,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-<<<<<<< HEAD
-        sync: false
-        
-=======
         sync: false            # set to: https://smart-food-donation-backend.onrender.com/api
->>>>>>> acbbed3 (Update Smart Food Donation Platform)
