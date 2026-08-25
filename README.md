@@ -223,13 +223,6 @@ npm run dev
 
 ---
 
-## 🚀 Live Cloud Deployment (100% Free)
-
-The repository comes ready with configuration for **Render**, **Vercel**, and **MongoDB Atlas**:
-* **Backend + Frontend (Render Blueprint):** Uses [`render.yaml`](./render.yaml) for 1-click dual service deployment.
-* **Frontend SPA (Vercel):** Uses [`client/vercel.json`](./client/vercel.json) for smooth client-side routing.
-* **Full Step-by-Step Instructions:** Read our complete **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** for free MongoDB Atlas, Render, and Vercel setup.
-
 ---
 
 ## 🔑 Default Evaluation Demo Credentials
