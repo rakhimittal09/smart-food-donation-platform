@@ -33,6 +33,10 @@ const updateProfile = async (req, res, next) => {
       state,
       pincode,
       avatar,
+      serviceAreas,
+      availability,
+      vehicleType,
+      ngoDetails,
     } = req.body;
 
     const user = await User.findById(req.user._id);
@@ -48,6 +52,14 @@ const updateProfile = async (req, res, next) => {
     if (state !== undefined) user.state = state;
     if (pincode !== undefined) user.pincode = pincode;
     if (avatar !== undefined) user.avatar = avatar;
+    // Volunteer fields
+    if (serviceAreas !== undefined) user.serviceAreas = serviceAreas;
+    if (availability !== undefined) user.availability = availability;
+    if (vehicleType !== undefined) user.vehicleType = vehicleType;
+    // NGO fields
+    if (ngoDetails !== undefined) {
+      user.ngoDetails = { ...user.ngoDetails, ...ngoDetails };
+    }
 
     const updatedUser = await user.save();
 
@@ -138,7 +150,7 @@ const getDashboardStats = async (req, res, next) => {
       const totalDonations = await FoodDonation.countDocuments({ donor: userId });
       const activeDonations = await FoodDonation.countDocuments({
         donor: userId,
-        status: { $in: ['Available', 'Pending', 'Accepted', 'Picked Up'] },
+        status: { $in: ['Available', 'Pending', 'Accepted', 'In Transit', 'Picked Up'] },
       });
       const completedDonations = await FoodDonation.countDocuments({
         donor: userId,
@@ -152,6 +164,19 @@ const getDashboardStats = async (req, res, next) => {
         status: 'Pending',
       });
 
+      // Impact metrics
+      const impactAgg = await FoodDonation.aggregate([
+        { $match: { donor: userId, status: 'Delivered' } },
+        {
+          $group: {
+            _id: null,
+            totalQuantity: { $sum: '$quantity' },
+            totalDonationCount: { $sum: 1 },
+          },
+        },
+      ]);
+      const impact = impactAgg[0] || { totalQuantity: 0, totalDonationCount: 0 };
+
       const recentDonations = await FoodDonation.find({ donor: userId })
         .sort({ createdAt: -1 })
         .limit(5);
@@ -160,7 +185,7 @@ const getDashboardStats = async (req, res, next) => {
         donation: { $in: userDonationIds },
       })
         .populate('receiver', 'name organizationName phone email')
-        .populate('donation', 'foodName quantity unit')
+        .populate('donation', 'foodName quantity unit donationId')
         .sort({ createdAt: -1 })
         .limit(5);
 
@@ -175,6 +200,11 @@ const getDashboardStats = async (req, res, next) => {
           activeDonations,
           completedDonations,
           pendingRequests,
+          impact: {
+            totalQuantityDelivered: impact.totalQuantity,
+            mealsServedEstimate: Math.round(impact.totalQuantity * 3),
+            co2SavedKg: Math.round(impact.totalQuantity * 2.5),
+          },
           recentDonations,
           recentRequests,
           recentActivities,
@@ -237,13 +267,49 @@ const getDashboardStats = async (req, res, next) => {
       });
     }
 
+    if (role === 'volunteer') {
+      // Volunteer can see pickups assigned/available in their city
+      const assignedPickups = await FoodRequest.countDocuments({
+        'pickupDetails.pickupPersonName': req.user.name,
+        status: { $in: ['Accepted', 'Picked Up'] },
+      });
+      const completedDeliveries = await FoodRequest.countDocuments({
+        'pickupDetails.pickupPersonName': req.user.name,
+        status: 'Delivered',
+      });
+
+      // Available pickups in volunteer's city
+      const availablePickups = await FoodDonation.find({
+        status: { $in: ['Accepted'] },
+        city: { $regex: req.user.city || '', $options: 'i' },
+      })
+        .populate('donor', 'name organizationName phone city')
+        .sort({ pickupDate: 1 })
+        .limit(10);
+
+      const recentActivities = await ActivityLog.find({ user: userId })
+        .sort({ createdAt: -1 })
+        .limit(6);
+
+      return res.json({
+        success: true,
+        data: {
+          assignedPickups,
+          completedDeliveries,
+          availablePickups,
+          recentActivities,
+        },
+      });
+    }
+
     if (role === 'admin') {
       const totalUsers = await User.countDocuments();
       const totalDonors = await User.countDocuments({ role: 'donor' });
       const totalReceivers = await User.countDocuments({ role: 'receiver' });
+      const totalVolunteers = await User.countDocuments({ role: 'volunteer' });
       const totalDonations = await FoodDonation.countDocuments();
       const activeDonations = await FoodDonation.countDocuments({
-        status: { $in: ['Available', 'Pending', 'Accepted', 'Picked Up'] },
+        status: { $in: ['Available', 'Pending', 'Accepted', 'In Transit', 'Picked Up'] },
       });
       const completedDonations = await FoodDonation.countDocuments({
         status: 'Delivered',
@@ -263,6 +329,7 @@ const getDashboardStats = async (req, res, next) => {
           totalUsers,
           totalDonors,
           totalReceivers,
+          totalVolunteers,
           totalDonations,
           activeDonations,
           completedDonations,

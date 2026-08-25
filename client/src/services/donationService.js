@@ -43,4 +43,19 @@ export const donationService = {
     const res = await api.delete(`/donations/${id}`);
     return res.data;
   },
+
+  getNearbyNgos: async (params = {}) => {
+    const res = await api.get('/donations/nearby-ngos', { params });
+    return res.data;
+  },
+
+  matchDonorToNgo: async (donationId) => {
+    const res = await api.get(`/donations/${donationId}/match`);
+    return res.data;
+  },
+
+  getDonationCertificate: async (donationId) => {
+    const res = await api.get(`/donations/${donationId}/certificate`);
+    return res.data;
+  },
 };

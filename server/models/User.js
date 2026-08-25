@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['donor', 'receiver', 'admin'],
+      enum: ['donor', 'receiver', 'volunteer', 'admin'],
       default: 'donor',
     },
     organizationName: {
@@ -68,6 +68,37 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       default: '',
+    },
+    // Volunteer-specific fields
+    serviceAreas: {
+      type: [String],
+      default: [],
+    },
+    availability: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    vehicleType: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    // NGO/Receiver details for smart matching
+    ngoDetails: {
+      registrationNumber: {
+        type: String,
+        trim: true,
+        default: '',
+      },
+      areasServed: {
+        type: [String],
+        default: [],
+      },
+      foodTypesAccepted: {
+        type: [String],
+        default: [],
+      },
     },
   },
   { timestamps: true }

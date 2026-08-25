@@ -22,6 +22,12 @@ import {
   Edit,
   Trash2,
   Share2,
+  Truck,
+  Download,
+  RefreshCw,
+  Thermometer,
+  Package,
+  Award,
 } from 'lucide-react';
 
 const DonationDetailsPage = () => {
@@ -135,7 +141,7 @@ const DonationDetailsPage = () => {
   const displayImage = donation.image
     ? donation.image.startsWith('http') || donation.image.startsWith('/uploads')
       ? donation.image
-      : `http://localhost:5000${donation.image}`
+      : `http://localhost:5001${donation.image}`
     : defaultFoodImages[donation.category] || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80';
 
   return (
@@ -189,7 +195,12 @@ const DonationDetailsPage = () => {
             />
 
             {/* Badges on Banner */}
-            <div style={{ position: 'absolute', top: '20px', left: '20px', display: 'flex', gap: '0.5rem' }}>
+            <div style={{ position: 'absolute', top: '20px', left: '20px', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              {donation.donationId && (
+                <span className="badge" style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', fontFamily: 'var(--font-heading)', letterSpacing: '0.04em' }}>
+                  🆔 {donation.donationId}
+                </span>
+              )}
               <span className={`badge ${donation.foodType === 'Veg' ? 'badge-veg' : donation.foodType === 'Non-Veg' ? 'badge-nonveg' : 'badge-vegan'}`}>
                 {donation.foodType}
               </span>
@@ -199,6 +210,8 @@ const DonationDetailsPage = () => {
               <span className="badge badge-scheduled">
                 Status: {donation.status}
               </span>
+              {donation.isAnonymous && <span className="badge badge-pending">🕶️ Anonymous</span>}
+              {donation.isRecurring && <span className="badge badge-scheduled">🔄 Recurring</span>}
             </div>
 
             {/* Bottom Title on Banner */}
@@ -228,6 +241,38 @@ const DonationDetailsPage = () => {
                 {donation.description}
               </p>
             </div>
+
+            {/* Multi-Item Breakdown */}
+            {donation.items && donation.items.length > 0 && (
+              <div style={{ marginBottom: '2rem' }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Package size={18} style={{ color: 'var(--primary-600)' }} /> Items in This Donation ({donation.items.length})
+                </h3>
+                <div style={{ border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+                  {donation.items.map((item, i) => (
+                    <div key={i} style={{ padding: '0.75rem 1.25rem', borderBottom: i < donation.items.length - 1 ? '1px solid var(--border-color)' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: i % 2 === 0 ? '#fff' : 'var(--bg-main)' }}>
+                      <div>
+                        <span style={{ fontWeight: 600, fontSize: '0.925rem' }}>{item.itemName}</span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>({item.category})</span>
+                      </div>
+                      <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--primary-700)' }}>{item.quantity} {item.unit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Donation Method */}
+            {donation.donationMethod && (
+              <div style={{ marginBottom: '2rem', padding: '1rem 1.25rem', background: 'var(--sky-50)', border: '1px solid var(--sky-200)', borderRadius: 'var(--radius-md)' }}>
+                <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem', color: 'var(--sky-800)' }}>
+                  <Truck size={16} /> Donation Method
+                </div>
+                <p style={{ fontSize: '0.875rem', marginTop: '0.3rem', color: 'var(--sky-700)', fontWeight: 600, textTransform: 'capitalize' }}>
+                  {donation.donationMethod.replace(/_/g, ' ')}
+                </p>
+              </div>
+            )}
 
             {/* Specs Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2.5rem', background: 'var(--bg-main)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
@@ -262,6 +307,29 @@ const DonationDetailsPage = () => {
 
             </div>
 
+            {/* Food Safety Details */}
+            {donation.foodSafetyDetails && (donation.foodSafetyDetails.storageType || donation.foodSafetyDetails.allergens) && (
+              <div style={{ marginBottom: '2.5rem', padding: '1.25rem 1.5rem', background: '#f0fdf4', border: '1px solid var(--primary-200)', borderRadius: 'var(--radius-md)' }}>
+                <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.95rem', color: 'var(--primary-800)', marginBottom: '0.75rem' }}>
+                  <Thermometer size={16} /> Food Safety Information
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                  {donation.foodSafetyDetails.storageType && (
+                    <div><strong>Storage:</strong> {donation.foodSafetyDetails.storageType.replace(/_/g, ' ')}</div>
+                  )}
+                  {donation.foodSafetyDetails.temperatureControlled && (
+                    <div><strong>Temp Controlled:</strong> ✅ Yes</div>
+                  )}
+                  {donation.foodSafetyDetails.allergens && (
+                    <div><strong>Allergens:</strong> {donation.foodSafetyDetails.allergens}</div>
+                  )}
+                  {donation.foodSafetyDetails.certifications && (
+                    <div><strong>Certifications:</strong> {donation.foodSafetyDetails.certifications}</div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Special Instructions */}
             {donation.specialInstructions && (
               <div style={{ marginBottom: '2.5rem', padding: '1rem 1.25rem', background: 'var(--amber-50)', border: '1px solid var(--amber-200)', borderRadius: 'var(--radius-md)', color: 'var(--amber-800)' }}>
@@ -290,16 +358,54 @@ const DonationDetailsPage = () => {
               {/* Donor Contact Card */}
               <div style={{ padding: '1.5rem', background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '1rem', marginBottom: '0.75rem', color: 'var(--text-main)' }}>
-                  <Building2 size={18} style={{ color: 'var(--sky-600)' }} /> Donor Organization
+                  <Building2 size={18} style={{ color: 'var(--sky-600)' }} /> {donation.isAnonymous ? 'Anonymous Donor' : 'Donor Organization'}
                 </div>
                 <div style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--text-muted)' }}>
-                  <p><strong>Organization:</strong> {donation.donor?.organizationName || donation.donor?.name}</p>
-                  <p><strong>Contact Person:</strong> {donation.contactName || donation.donor?.name}</p>
-                  <p><strong>Phone:</strong> {donation.contactPhone || donation.donor?.phone || 'Confidential'}</p>
+                  {donation.isAnonymous ? (
+                    <p>This donor has chosen to remain anonymous.</p>
+                  ) : (
+                    <>
+                      <p><strong>Organization:</strong> {donation.donor?.organizationName || donation.donor?.name}</p>
+                      <p><strong>Contact Person:</strong> {donation.contactName || donation.donor?.name}</p>
+                      <p><strong>Phone:</strong> {donation.contactPhone || donation.donor?.phone || 'Confidential'}</p>
+                    </>
+                  )}
                 </div>
               </div>
 
             </div>
+
+            {/* Download Certificate for Completed Donations */}
+            {donation.status === 'Delivered' && (isOwner || isAdmin) && (
+              <div style={{ marginBottom: '2rem', padding: '1.25rem 1.5rem', background: 'linear-gradient(135deg, #eef2ff, #ffffff)', border: '1px solid var(--indigo-200)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Award size={20} style={{ color: 'var(--indigo-600)' }} />
+                  <div>
+                    <div style={{ fontWeight: 700, color: 'var(--indigo-800)', fontSize: '0.95rem' }}>Donation Certificate Available</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Certificate ID: CERT-{donation.donationId}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      const res = await donationService.getDonationCertificate(donation._id);
+                      if (res.success) {
+                        const cert = res.data;
+                        const w = window.open('', '_blank');
+                        w.document.write('<html><head><title>Donation Certificate - ' + cert.certificateNumber + '</title><style>body{font-family:sans-serif;max-width:700px;margin:40px auto;padding:40px;border:3px solid #059669;border-radius:16px;text-align:center}h1{color:#059669;margin-bottom:8px}h2{color:#333;font-size:1.1rem;margin-bottom:24px}.f{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e2e8f0;text-align:left}.l{color:#666;font-weight:600}.v{color:#111;font-weight:700}.ft{margin-top:32px;color:#888;font-size:0.8rem}@media print{body{border:2px solid #059669}}</style></head><body><h1>Donation Certificate</h1><h2>NourishLink Smart Food Donation Platform</h2><div class="f"><span class="l">Certificate</span><span class="v">' + cert.certificateNumber + '</span></div><div class="f"><span class="l">Donation ID</span><span class="v">' + cert.donationId + '</span></div><div class="f"><span class="l">Donor</span><span class="v">' + cert.donorName + '</span></div><div class="f"><span class="l">Food</span><span class="v">' + cert.foodName + '</span></div><div class="f"><span class="l">Quantity</span><span class="v">' + cert.quantity + ' ' + cert.unit + '</span></div><div class="f"><span class="l">Receiver</span><span class="v">' + cert.receiverName + '</span></div><div class="f"><span class="l">Date</span><span class="v">' + new Date(cert.donationDate).toLocaleDateString() + '</span></div><div class="f"><span class="l">Status</span><span class="v">Delivered</span></div><div class="ft"><p>Issued by NourishLink on ' + new Date(cert.issuedAt).toLocaleDateString() + '</p><button onclick="window.print()" style="margin-top:16px;padding:8px 24px;background:#059669;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:700">Print Certificate</button></div></body></html>');
+                        w.document.close();
+                      }
+                    } catch (err) {
+                      console.error('Certificate error:', err);
+                    }
+                  }}
+                  className="btn btn-primary btn-sm"
+                  style={{ gap: '0.4rem' }}
+                >
+                  <Download size={16} /> Download Certificate
+                </button>
+              </div>
+            )}
 
             {/* Request CTA for NGOs */}
             {donation.status === 'Available' && (

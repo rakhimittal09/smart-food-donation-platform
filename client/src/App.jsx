@@ -17,6 +17,11 @@ import RegisterPage from './pages/RegisterPage';
 import DonationsPage from './pages/DonationsPage';
 import DonationDetailsPage from './pages/DonationDetailsPage';
 import NotFoundPage from './pages/NotFoundPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsPage from './pages/TermsPage';
+import FAQPage from './pages/FAQPage';
 
 // Authenticated Pages
 import ProfilePage from './pages/ProfilePage';
@@ -31,6 +36,9 @@ import EditDonationPage from './pages/EditDonationPage';
 
 // Receiver Pages
 import ReceiverDashboard from './pages/ReceiverDashboard';
+
+// Volunteer Pages
+import VolunteerDashboard from './pages/VolunteerDashboard';
 
 // Admin Pages
 import AdminDashboard from './pages/AdminDashboard';
@@ -58,6 +66,11 @@ function App() {
                   <Route path="/register" element={<RegisterPage />} />
                   <Route path="/donations" element={<DonationsPage />} />
                   <Route path="/donations/:id" element={<DonationDetailsPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/faq" element={<FAQPage />} />
 
                   {/* General Authenticated Routes */}
                   <Route
@@ -133,6 +146,16 @@ function App() {
                     element={
                       <RoleProtectedRoute allowedRoles={['receiver']}>
                         <ReceiverDashboard />
+                      </RoleProtectedRoute>
+                    }
+                  />
+
+                  {/* Volunteer Protected Routes */}
+                  <Route
+                    path="/volunteer-dashboard"
+                    element={
+                      <RoleProtectedRoute allowedRoles={['volunteer']}>
+                        <VolunteerDashboard />
                       </RoleProtectedRoute>
                     }
                   />

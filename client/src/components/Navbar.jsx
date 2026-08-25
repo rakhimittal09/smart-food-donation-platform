@@ -15,6 +15,9 @@ import {
   Search,
   ShieldCheck,
   Package,
+  Sun,
+  Moon,
+  Eye,
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -28,6 +31,15 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const themeRef = useRef(null);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
   // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -37,10 +49,13 @@ const Navbar = () => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setShowUserMenu(false);
       }
+      if (themeRef.current && !themeRef.current.contains(event.target)) {
+        setShowThemeMenu(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [theme]);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -54,10 +69,13 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  const isVolunteer = user?.role === 'volunteer';
+
   const getDashboardPath = () => {
     if (isAdmin) return '/admin';
     if (isDonor) return '/donor-dashboard';
     if (isReceiver) return '/receiver-dashboard';
+    if (isVolunteer) return '/volunteer-dashboard';
     return '/';
   };
 
@@ -108,6 +126,28 @@ const Navbar = () => {
             <Search size={16} /> Explore Food
           </Link>
 
+          <Link
+            to="/about"
+            style={{
+              fontWeight: 600,
+              fontSize: '0.925rem',
+              color: location.pathname === '/about' ? 'var(--primary-600)' : 'var(--text-muted)',
+            }}
+          >
+            About
+          </Link>
+
+          <Link
+            to="/faq"
+            style={{
+              fontWeight: 600,
+              fontSize: '0.925rem',
+              color: location.pathname === '/faq' ? 'var(--primary-600)' : 'var(--text-muted)',
+            }}
+          >
+            FAQ
+          </Link>
+
           {isAuthenticated && (
             <>
               <Link
@@ -155,6 +195,69 @@ const Navbar = () => {
 
         {/* Right Section: Auth & Notifications */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Theme Toggle Switcher */}
+          <div style={{ position: 'relative' }} ref={themeRef}>
+            <button
+              onClick={() => setShowThemeMenu(!showThemeMenu)}
+              className="btn btn-secondary btn-icon"
+              style={{ borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              aria-label="Toggle Theme"
+            >
+              {theme === 'light' ? <Sun size={18} /> : theme === 'dark' ? <Moon size={18} /> : <Eye size={18} />}
+            </button>
+            {showThemeMenu && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '0.5rem',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 'var(--radius-md)',
+                  boxShadow: 'var(--shadow-lg)',
+                  zIndex: 150,
+                  minWidth: '140px',
+                  padding: '0.4rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.2rem',
+                }}
+              >
+                {[
+                  { key: 'light', label: '☀️ Light', text: 'Light Mode' },
+                  { key: 'dark', label: '🌙 Dark', text: 'Dark Mode' },
+                  { key: 'contrast', label: '👁️ Contrast', text: 'High Contrast' },
+                ].map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      setTheme(item.key);
+                      setShowThemeMenu(false);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      textAlign: 'left',
+                      background: theme === item.key ? 'var(--primary-50)' : 'none',
+                      color: theme === item.key ? 'var(--primary-700)' : 'var(--text-main)',
+                      border: 'none',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.85rem',
+                      fontWeight: theme === item.key ? 700 : 500,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {isAuthenticated ? (
             <>
               {/* Notifications Popover */}

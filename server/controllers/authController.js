@@ -28,14 +28,14 @@ const register = async (req, res, next) => {
     } = req.body;
 
     // Critical Security Check: Public registration MUST NOT allow admin accounts
-    if (role === 'admin' || (role && !['donor', 'receiver'].includes(role))) {
+    if (role === 'admin' || (role && !['donor', 'receiver', 'volunteer'].includes(role))) {
       return res.status(400).json({
         success: false,
         message: 'Registration with administrative privileges is prohibited. Admin accounts must be created through secure system provisioning.',
       });
     }
 
-    const assignedRole = role === 'receiver' ? 'receiver' : 'donor';
+    const assignedRole = ['receiver', 'volunteer'].includes(role) ? role : 'donor';
 
     // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });

@@ -8,6 +8,9 @@ const {
   updateDonation,
   deleteDonation,
   updateDonationStatus,
+  getNearbyNgos,
+  matchDonorToNgo,
+  getDonationCertificate,
 } = require('../controllers/donationController');
 const { protect, optionalProtect } = require('../middleware/auth');
 const { authorize } = require('../middleware/role');
@@ -16,7 +19,10 @@ const { donationRules } = require('../middleware/validator');
 
 router.get('/', getDonations);
 router.get('/my', protect, authorize('donor'), getMyDonations);
+router.get('/nearby-ngos', protect, getNearbyNgos);
 router.get('/:id', optionalProtect, getDonationById);
+router.get('/:id/match', protect, matchDonorToNgo);
+router.get('/:id/certificate', protect, getDonationCertificate);
 
 router.post(
   '/',

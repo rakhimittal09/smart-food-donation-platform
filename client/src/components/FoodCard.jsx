@@ -78,7 +78,7 @@ const FoodCard = ({ donation, onRequestClick, isDonorView = false }) => {
   const displayImage = image
     ? image.startsWith('http') || image.startsWith('/uploads')
       ? image
-      : `http://localhost:5000${image}`
+      : `http://localhost:5001${image}`
     : defaultFoodImages[category] || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80';
 
   return (

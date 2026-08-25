@@ -27,10 +27,13 @@
 
 ### 1. 🍱 Food Donor (Restaurants, Caterers, Banquets, Individuals)
 * **Authentication & Profile:** Register, login, manage contact & address info, change password.
-* **Donation Management (CRUD):** List surplus food with real-time preview card, category, quantity, Veg/Non-Veg/Vegan/Egg dietary specs, preparation date, expiration countdown, pickup time slot, and photos.
+* **Flexible Donation Management (CRUD):** List surplus food with real-time preview card, category, quantity, dietary specs, preparation date, expiration, pickup time slot, and photos. **Supports multi-item listing** (e.g. wheat + rice + grains in one go) and expanded units (kg, grams, litres, packets, bags, pieces, meals).
+* **Donation Options:** Opt for **Anonymous Donation** to protect privacy, or **Recurring Donation** (daily, weekly, bi-weekly, monthly) for regular leftovers.
+* **Donation Method Selector:** Specify preferred handover: NGO/volunteer pickup, self-delivery, arrange pickup, choose nearby NGO, or let the platform assist.
 * **Incoming Request Coordination:** Accept or decline NGO food requests with customizable notes.
 * **Pickup Oversight:** Monitor volunteer assignment, verify pickup OTP codes, and confirm handover completion.
-* **Donor Dashboard:** Key metrics (Total Listed, Active, Completed, Pending Requests), recent listings, and live activity stream.
+* **Download Certificates:** Instantly download official platform donation certificates/receipts once a rescue is marked as delivered.
+* **Donor Dashboard:** Key metrics, impact estimates (total kg delivered, estimated meals served, estimated CO₂ saved), recent listings, and live activity stream.
 
 ### 2. 🤝 Food Receiver / NGO (Shelters, Charities, Food Banks)
 * **Catalog Discovery:** Search and multi-filter surplus food by keyword, category, city, dietary type, and expiration urgency.
@@ -38,12 +41,26 @@
 * **Interactive Pickup Tracking:** Real-time multi-stage stepper (`Requested` ➔ `Approved` ➔ `Pickup Scheduled` ➔ `Picked Up` ➔ `Completed`), 4-digit handover OTP, driver & vehicle info updates.
 * **Receiver Dashboard:** Nearby food inventory, active request monitor, approved pickup cards, and delivery records.
 
-### 3. 👑 Administrator (System Chief / Platform Manager)
+### 3. 🚚 Volunteer / Pickup Partner (Independent Delivery Networks)
+* **Local Pickup Discovery:** Browse available food listings ready for pickup in the volunteer's registered city.
+* **Active Tasks Tracking:** View and monitor assigned pickups, update delivery status (`In Transit` ➔ `Delivered`), and log handovers.
+* **Volunteer Dashboard:** Dynamic statistics for assigned pickups, completed deliveries, and available nearby pickup listings.
+
+### 4. 👑 Administrator (System Chief / Platform Manager)
 * **User Directory:** Full search, role filtering, account status toggles (`Active` / `Suspended / Blocked`), and user deletion.
 * **Donation Moderation:** Oversight over all food listings across all statuses with one-click status transitions and removal of invalid listings.
 * **Food Category Manager:** Add, edit, and delete food categories with custom emoji icons.
 * **Analytics & Reports:** Visual SVG bar charts and donut breakdown by category, city, dietary type, and monthly donation volumes, plus Top Donors Leaderboard.
 * **Activity Audit Logs:** Immutable security audit stream capturing logins, registrations, listing creation/edits, approvals, and handovers with IP records.
+
+---
+
+## 🎨 Theme & Accessibility System
+
+The platform features a native theme switcher directly in the top navigation bar, enabling users to choose between:
+* **☀️ Light Mode (Default):** A clean, professional, high-vibrancy green palette tailored for daytime use.
+* **🌙 Dark Mode:** An elegant dark blue/slate colorway that minimizes eye strain in low-light environments.
+* **👁️ High Contrast Mode:** A maximum-visibility accessibility layout featuring a solid black background, bright yellow key elements, and clear white borders for users with visual impairments.
 
 ---
 
@@ -188,7 +205,7 @@ cp .env.example .env
 # Seed sample data (Admin, Donors, NGOs, Listings, Requests)
 npm run seed
 
-# Start development backend (Runs on http://localhost:5000)
+# Start development backend (Runs on http://localhost:5001)
 npm run dev
 ```
 
@@ -217,7 +234,7 @@ The repository comes ready with configuration for **Render**, **Vercel**, and **
 
 ## 🔑 Default Evaluation Demo Credentials
 
-For instant evaluation, the Login page (`/login`) includes **1-Click Quick Fill** buttons for all 3 roles:
+For instant evaluation, the Login page (`/login`) includes **1-Click Quick Fill** buttons for all 4 roles:
 
 | Role | Email Address | Password | Organization / Entity |
 |---|---|---|---|
@@ -226,14 +243,15 @@ For instant evaluation, the Login page (`/login`) includes **1-Click Quick Fill*
 | 🍱 **Food Donor 2** | `donor@freshbakes.com` | `donor123` | Fresh Bakes & Confectionery |
 | 🤝 **NGO / Receiver** | `receiver@feedingindia.org` | `ngo123` | Feeding India Foundation |
 | 🤝 **NGO / Receiver 2**| `receiver@hopefoundation.org`| `ngo123` | Hope Children Shelter Home |
+| 🚚 **Volunteer / Partner**| `volunteer@nourishlink.org`| `volunteer123` | Green Courier Volunteers |
 
 ---
 
-## 📡 REST API Summary (20+ Endpoints)
+## 📡 REST API Summary (23+ Endpoints)
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| `POST` | `/api/auth/register` | Public | Register new Donor or NGO account |
+| `POST` | `/api/auth/register` | Public | Register new Donor, NGO, or Volunteer account |
 | `POST` | `/api/auth/login` | Public | Login with email/password & receive JWT |
 | `POST` | `/api/auth/logout` | Private | Clear active authentication session |
 | `GET` | `/api/auth/me` | Private | Retrieve authenticated user profile |
@@ -244,7 +262,10 @@ For instant evaluation, the Login page (`/login`) includes **1-Click Quick Fill*
 | `GET` | `/api/donations` | Public | List food donations with filters & search |
 | `POST` | `/api/donations` | Donor | Create food donation listing |
 | `GET` | `/api/donations/my` | Donor | Fetch user's own listed food items |
+| `GET` | `/api/donations/nearby-ngos`| Private | Search nearby NGOs by city/pincode |
 | `GET` | `/api/donations/:id` | Public | Fetch detailed donation specs |
+| `GET` | `/api/donations/:id/match`| Private | Get smart-scored NGO matching options |
+| `GET` | `/api/donations/:id/certificate`| Private | Retrieve donation certificate/receipt metadata |
 | `PUT` | `/api/donations/:id` | Donor/Admin | Update food donation details |
 | `DELETE`| `/api/donations/:id` | Donor/Admin | Delete food donation listing |
 | `PUT` | `/api/donations/:id/status` | Donor/Admin | Transition donation status |

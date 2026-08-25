@@ -33,8 +33,8 @@ const registerRules = [
   body('phone').trim().matches(/^[\+]?[0-9\s-]{7,15}$/).withMessage('Please provide a valid phone number (e.g. 9812345678)'),
   body('role')
     .optional()
-    .isIn(['donor', 'receiver'])
-    .withMessage('Invalid role specified. Only donor and receiver can register publicly.'),
+    .isIn(['donor', 'receiver', 'volunteer'])
+    .withMessage('Invalid role specified. Only donor, receiver, and volunteer can register publicly.'),
   validate,
 ];
 
@@ -50,7 +50,7 @@ const donationRules = [
   body('description').trim().notEmpty().withMessage('Description is required'),
   body('category').trim().notEmpty().withMessage('Category is required'),
   body('quantity').isNumeric().withMessage('Quantity must be a valid number').custom((val) => val > 0).withMessage('Quantity must be greater than 0'),
-  body('unit').isIn(['kg', 'meals', 'boxes', 'packets', 'servings', 'litres']).withMessage('Invalid quantity unit'),
+  body('unit').isIn(['kg', 'grams', 'litres', 'packets', 'bags', 'pieces', 'meals', 'boxes', 'servings']).withMessage('Invalid quantity unit'),
   body('foodType').isIn(['Veg', 'Non-Veg', 'Vegan', 'Egg']).withMessage('Invalid food type'),
   body('expiryDate').notEmpty().withMessage('Expiry date is required').isISO8601().withMessage('Expiry date must be a valid ISO date'),
   body('pickupDate').notEmpty().withMessage('Pickup date is required').isISO8601().withMessage('Pickup date must be a valid ISO date'),
@@ -59,6 +59,12 @@ const donationRules = [
   body('city').trim().notEmpty().withMessage('City is required'),
   body('state').trim().notEmpty().withMessage('State is required'),
   body('pincode').matches(/^\d{6}$/).withMessage('Pincode must be 6 digits'),
+  body('donationMethod')
+    .optional()
+    .isIn(['ngo_pickup', 'self_delivery', 'arrange_pickup', 'choose_ngo', 'need_help'])
+    .withMessage('Invalid donation method'),
+  body('isRecurring').optional().isBoolean().withMessage('isRecurring must be boolean'),
+  body('isAnonymous').optional().isBoolean().withMessage('isAnonymous must be boolean'),
   validate,
 ];
 

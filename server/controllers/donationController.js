@@ -1,5 +1,6 @@
 const FoodDonation = require('../models/FoodDonation');
 const FoodRequest = require('../models/FoodRequest');
+const User = require('../models/User');
 const { logActivity } = require('../services/logService');
 const { sendNotification } = require('../services/notificationService');
 
@@ -14,12 +15,15 @@ const createDonation = async (req, res, next) => {
       category,
       quantity,
       unit,
+      items,
       foodType,
       preparationDate,
       expiryDate,
+      donationMethod,
       pickupDate,
       pickupTime,
       pickupAddress,
+      deliveryAddress,
       city,
       state,
       pincode,
@@ -27,11 +31,27 @@ const createDonation = async (req, res, next) => {
       contactPhone,
       specialInstructions,
       image,
+      isRecurring,
+      recurringFrequency,
+      isAnonymous,
+      foodSafetyDetails,
     } = req.body;
 
     let finalImage = image || '';
     if (req.file) {
       finalImage = `/uploads/${req.file.filename}`;
+    }
+
+    // Parse items if sent as JSON string (multipart form)
+    let parsedItems = [];
+    if (items) {
+      parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
+    }
+
+    // Parse foodSafetyDetails if sent as JSON string
+    let parsedFoodSafety = {};
+    if (foodSafetyDetails) {
+      parsedFoodSafety = typeof foodSafetyDetails === 'string' ? JSON.parse(foodSafetyDetails) : foodSafetyDetails;
     }
 
     const donation = await FoodDonation.create({
@@ -41,12 +61,15 @@ const createDonation = async (req, res, next) => {
       category,
       quantity: Number(quantity),
       unit: unit || 'servings',
+      items: parsedItems,
       foodType: foodType || 'Veg',
       preparationDate: preparationDate || new Date(),
       expiryDate,
+      donationMethod: donationMethod || 'ngo_pickup',
       pickupDate,
       pickupTime,
       pickupAddress,
+      deliveryAddress: deliveryAddress || '',
       city,
       state,
       pincode,
@@ -55,12 +78,16 @@ const createDonation = async (req, res, next) => {
       specialInstructions: specialInstructions || '',
       image: finalImage,
       status: 'Available',
+      isRecurring: isRecurring === true || isRecurring === 'true',
+      recurringFrequency: recurringFrequency || '',
+      isAnonymous: isAnonymous === true || isAnonymous === 'true',
+      foodSafetyDetails: parsedFoodSafety,
     });
 
     await logActivity({
       userId: req.user._id,
       action: 'DONATION_CREATED',
-      description: `Created food donation: ${donation.foodName} (${donation.quantity} ${donation.unit})`,
+      description: `Created food donation: ${donation.foodName} (${donation.quantity} ${donation.unit}) [${donation.donationId}]`,
       module: 'DONATION',
       ipAddress: req.ip,
     });
@@ -68,7 +95,7 @@ const createDonation = async (req, res, next) => {
     await sendNotification({
       userId: req.user._id,
       title: 'Donation Listed Successfully',
-      message: `Your donation "${donation.foodName}" is now active and discoverable by NGOs.`,
+      message: `Your donation "${donation.foodName}" (${donation.donationId}) is now active and discoverable by NGOs.`,
       type: 'success',
       link: `/donations/${donation._id}`,
     });
@@ -95,6 +122,7 @@ const getDonations = async (req, res, next) => {
       city,
       location,
       status,
+      donationMethod,
       includeExpired,
       page = 1,
       limit = 12,
@@ -126,6 +154,11 @@ const getDonations = async (req, res, next) => {
       query.foodType = foodType;
     }
 
+    // Donation method filter
+    if (donationMethod && donationMethod !== 'all') {
+      query.donationMethod = donationMethod;
+    }
+
     // Location filter (city, state, or pickup address)
     const locationTerm = location || city;
     if (locationTerm && locationTerm !== 'all') {
@@ -144,6 +177,7 @@ const getDonations = async (req, res, next) => {
           { city: { $regex: search, $options: 'i' } },
           { pickupAddress: { $regex: search, $options: 'i' } },
           { foodType: { $regex: search, $options: 'i' } },
+          { donationId: { $regex: search, $options: 'i' } },
         ],
       };
       if (query.$or) {
@@ -307,6 +341,16 @@ const updateDonation = async (req, res, next) => {
       req.body.image = `/uploads/${req.file.filename}`;
     }
 
+    // Parse items if sent as JSON string
+    if (req.body.items && typeof req.body.items === 'string') {
+      req.body.items = JSON.parse(req.body.items);
+    }
+
+    // Parse foodSafetyDetails if sent as JSON string
+    if (req.body.foodSafetyDetails && typeof req.body.foodSafetyDetails === 'string') {
+      req.body.foodSafetyDetails = JSON.parse(req.body.foodSafetyDetails);
+    }
+
     donation = await FoodDonation.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
@@ -388,6 +432,7 @@ const updateDonationStatus = async (req, res, next) => {
       'Available',
       'Pending',
       'Accepted',
+      'In Transit',
       'Picked Up',
       'Delivered',
       'Expired',
@@ -419,6 +464,170 @@ const updateDonationStatus = async (req, res, next) => {
   }
 };
 
+// @desc    Search nearby NGOs / food banks
+// @route   GET /api/donations/nearby-ngos
+// @access  Private
+const getNearbyNgos = async (req, res, next) => {
+  try {
+    const { city, pincode, state } = req.query;
+    const query = { role: 'receiver', status: 'active' };
+
+    if (city) {
+      query.city = { $regex: city, $options: 'i' };
+    } else if (pincode) {
+      query.pincode = pincode;
+    } else if (state) {
+      query.state = { $regex: state, $options: 'i' };
+    }
+
+    const ngos = await User.find(query)
+      .select('name organizationName email phone address city state pincode ngoDetails')
+      .limit(20)
+      .sort({ organizationName: 1 });
+
+    res.json({
+      success: true,
+      data: ngos,
+      total: ngos.length,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Smart match donation to an NGO
+// @route   GET /api/donations/:id/match
+// @access  Private
+const matchDonorToNgo = async (req, res, next) => {
+  try {
+    const donation = await FoodDonation.findById(req.params.id);
+    if (!donation) {
+      return res.status(404).json({ success: false, message: 'Donation not found' });
+    }
+
+    // Find NGOs in same city first, then same state
+    const matchQuery = {
+      role: 'receiver',
+      status: 'active',
+    };
+
+    // Priority 1: Same city
+    const cityMatches = await User.find({
+      ...matchQuery,
+      city: { $regex: donation.city, $options: 'i' },
+    })
+      .select('name organizationName email phone city state pincode ngoDetails')
+      .limit(10);
+
+    // Priority 2: Same state (excluding already matched cities)
+    const cityIds = cityMatches.map((n) => n._id);
+    const stateMatches = await User.find({
+      ...matchQuery,
+      _id: { $nin: cityIds },
+      state: { $regex: donation.state, $options: 'i' },
+    })
+      .select('name organizationName email phone city state pincode ngoDetails')
+      .limit(5);
+
+    // Score each match
+    const scoredMatches = [...cityMatches, ...stateMatches].map((ngo) => {
+      let score = 0;
+      // City match = 40 points
+      if (ngo.city && donation.city && ngo.city.toLowerCase() === donation.city.toLowerCase()) {
+        score += 40;
+      }
+      // Food type match = 30 points
+      if (
+        ngo.ngoDetails &&
+        ngo.ngoDetails.foodTypesAccepted &&
+        ngo.ngoDetails.foodTypesAccepted.length > 0
+      ) {
+        const accepted = ngo.ngoDetails.foodTypesAccepted.map((f) => f.toLowerCase());
+        if (accepted.includes(donation.category.toLowerCase()) || accepted.includes('all')) {
+          score += 30;
+        }
+      } else {
+        score += 15; // Default score if no preferences set
+      }
+      // Organization name = 10 points
+      if (ngo.organizationName) score += 10;
+      // Pincode match = 20 points
+      if (ngo.pincode === donation.pincode) score += 20;
+
+      return { ...ngo.toObject(), matchScore: score };
+    });
+
+    // Sort by score descending
+    scoredMatches.sort((a, b) => b.matchScore - a.matchScore);
+
+    res.json({
+      success: true,
+      data: scoredMatches,
+      donationId: donation.donationId,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get donation certificate/receipt data
+// @route   GET /api/donations/:id/certificate
+// @access  Private
+const getDonationCertificate = async (req, res, next) => {
+  try {
+    const donation = await FoodDonation.findById(req.params.id).populate(
+      'donor',
+      'name organizationName email phone city state'
+    );
+
+    if (!donation) {
+      return res.status(404).json({ success: false, message: 'Donation not found' });
+    }
+
+    // Only allow certificate for delivered/completed donations or for the donor
+    if (
+      donation.status !== 'Delivered' &&
+      req.user.role !== 'admin' &&
+      donation.donor._id.toString() !== req.user._id.toString()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'Certificate is available only for completed donations.',
+      });
+    }
+
+    const request = await FoodRequest.findOne({
+      donation: donation._id,
+      status: 'Delivered',
+    }).populate('receiver', 'name organizationName city');
+
+    const certificate = {
+      donationId: donation.donationId,
+      donorName: donation.isAnonymous ? 'Anonymous Donor' : (donation.donor.organizationName || donation.donor.name),
+      donorCity: donation.isAnonymous ? '' : donation.donor.city,
+      foodName: donation.foodName,
+      category: donation.category,
+      quantity: donation.quantity,
+      unit: donation.unit,
+      items: donation.items,
+      donationDate: donation.createdAt,
+      completedDate: request?.completedAt || donation.updatedAt,
+      receiverName: request?.receiver?.organizationName || request?.receiver?.name || 'Pending',
+      receiverCity: request?.receiver?.city || '',
+      status: donation.status,
+      certificateNumber: `CERT-${donation.donationId}`,
+      issuedAt: new Date(),
+    };
+
+    res.json({
+      success: true,
+      data: certificate,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createDonation,
   getDonations,
@@ -427,4 +636,7 @@ module.exports = {
   updateDonation,
   deleteDonation,
   updateDonationStatus,
+  getNearbyNgos,
+  matchDonorToNgo,
+  getDonationCertificate,
 };

@@ -53,6 +53,7 @@ const RegisterPage = () => {
       if (res.success) {
         if (role === 'donor') navigate('/donor-dashboard');
         else if (role === 'receiver') navigate('/receiver-dashboard');
+        else if (role === 'volunteer') navigate('/volunteer-dashboard');
         else navigate('/');
       } else {
         setError(res.message || 'Registration failed. Please check inputs.');
@@ -102,7 +103,7 @@ const RegisterPage = () => {
           </div>
 
           {/* Role Switcher */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.75rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginBottom: '1.75rem' }}>
             <button
               type="button"
               onClick={() => setRole('donor')}
@@ -114,16 +115,16 @@ const RegisterPage = () => {
                 background: role === 'donor' ? 'var(--primary-50)' : '#ffffff',
                 color: role === 'donor' ? 'var(--primary-800)' : 'var(--text-muted)',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 cursor: 'pointer',
                 transition: 'all var(--trans-fast)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.5rem',
+                gap: '0.4rem',
               }}
             >
-              🍱 Food Donor
+              🍱 Donor
             </button>
 
             <button
@@ -137,16 +138,39 @@ const RegisterPage = () => {
                 background: role === 'receiver' ? 'var(--amber-50)' : '#ffffff',
                 color: role === 'receiver' ? 'var(--amber-800)' : 'var(--text-muted)',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 cursor: 'pointer',
                 transition: 'all var(--trans-fast)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.5rem',
+                gap: '0.4rem',
               }}
             >
-              🤝 NGO / Food Receiver
+              🤝 NGO / Receiver
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setRole('volunteer')}
+              style={{
+                padding: '0.85rem',
+                borderRadius: 'var(--radius-md)',
+                border: '2px solid',
+                borderColor: role === 'volunteer' ? 'var(--indigo-500)' : 'var(--border-color)',
+                background: role === 'volunteer' ? 'var(--indigo-50)' : '#ffffff',
+                color: role === 'volunteer' ? 'var(--indigo-600)' : 'var(--text-muted)',
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                transition: 'all var(--trans-fast)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+              }}
+            >
+              🚚 Volunteer
             </button>
           </div>
 

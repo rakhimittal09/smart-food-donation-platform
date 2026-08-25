@@ -172,6 +172,45 @@ const DonorDashboard = () => {
         />
       </div>
 
+      {/* Impact Metrics Banner */}
+      {stats?.impact && (
+        <div
+          className="card"
+          style={{
+            marginBottom: '2rem',
+            padding: '1.5rem 2rem',
+            background: 'linear-gradient(135deg, #064e3b 0%, #059669 100%)',
+            color: '#ffffff',
+            borderRadius: 'var(--radius-xl)',
+            border: 'none',
+          }}
+        >
+          <div style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.85, marginBottom: '1rem' }}>
+            🌍 Your Impact So Far
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem' }}>
+            <div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>
+                {stats.impact.totalQuantityDelivered || 0}
+              </div>
+              <div style={{ fontSize: '0.85rem', opacity: 0.85 }}>Units Delivered</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>
+                ~{stats.impact.mealsServedEstimate || 0}
+              </div>
+              <div style={{ fontSize: '0.85rem', opacity: 0.85 }}>Meals Served (est.)</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>
+                {stats.impact.co2SavedKg || 0} kg
+              </div>
+              <div style={{ fontSize: '0.85rem', opacity: 0.85 }}>CO₂ Saved (est.)</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 2-Column Section: Incoming Requests & Recent Listings */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.75rem', marginBottom: '2rem' }}>
         

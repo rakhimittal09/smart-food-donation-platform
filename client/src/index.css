@@ -73,6 +73,135 @@
   --radius-full: 9999px;
 }
 
+/* ==========================================================================
+   DARK THEME VARIABLES
+   ========================================================================== */
+[data-theme="dark"] {
+  --bg-main: #0f172a;
+  --bg-card: #1e293b;
+  --bg-card-subtle: #0f172a;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+  --border-color: #334155;
+  --border-focus: #34d399;
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .glass {
+  background: rgba(30, 41, 59, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .glass-nav {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.8) !important;
+}
+
+[data-theme="dark"] .glass-card {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .custom-table th {
+  background: #1e293b !important;
+}
+
+[data-theme="dark"] .custom-table tr:hover td {
+  background: #334155 !important;
+}
+
+[data-theme="dark"] .dashboard-sidebar {
+  background: #1e293b !important;
+}
+
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .form-textarea {
+  background: #0f172a !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+/* ==========================================================================
+   HIGH CONTRAST THEME VARIABLES (ACCESSIBILITY)
+   ========================================================================== */
+[data-theme="contrast"] {
+  --bg-main: #000000;
+  --bg-card: #000000;
+  --bg-card-subtle: #111111;
+  --text-main: #ffffff;
+  --text-muted: #e2e8f0;
+  --text-light: #cbd5e1;
+  --border-color: #ffffff;
+  --border-focus: #ffff00;
+
+  --primary-50: #000000;
+  --primary-100: #111111;
+  --primary-200: #ffff00;
+  --primary-300: #ffff00;
+  --primary-400: #ffff00;
+  --primary-500: #ffff00;
+  --primary-600: #ffff00;
+  --primary-700: #ffff00;
+  --primary-800: #ffff00;
+  --primary-900: #ffff00;
+
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+}
+
+[data-theme="contrast"] .glass,
+[data-theme="contrast"] .glass-nav,
+[data-theme="contrast"] .glass-card,
+[data-theme="contrast"] .card,
+[data-theme="contrast"] .dashboard-sidebar {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+[data-theme="contrast"] .btn {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+[data-theme="contrast"] .btn:hover {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+[data-theme="contrast"] .form-input,
+[data-theme="contrast"] .form-select,
+[data-theme="contrast"] .form-textarea {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="contrast"] .badge {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
 /* Reset & Box Sizing */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -699,3 +828,99 @@ button, input, select, textarea {
 .toast-error { background: #881337; border-left: 4px solid var(--rose-400); }
 .toast-warning { background: #78350f; border-left: 4px solid var(--amber-400); }
 .toast-info { background: #1e3a8a; border-left: 4px solid var(--sky-400); }
+
+/* Wizard Step Labels */
+@media (max-width: 640px) {
+  .wizard-step-label {
+    display: none;
+  }
+}
+
+/* In Transit Badge */
+.badge-in-transit {
+  background: var(--indigo-100);
+  color: var(--indigo-800);
+  border: 1px solid var(--indigo-200);
+}
+
+/* Volunteer Role Badge */
+.badge-volunteer {
+  background: var(--indigo-50);
+  color: var(--indigo-700);
+  border: 1px solid var(--indigo-200);
+}
+
+/* Accordion Animations */
+.accordion-enter {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 250ms ease, opacity 200ms ease;
+}
+
+.accordion-enter-active {
+  max-height: 500px;
+  opacity: 1;
+}
+
+/* Donation Certificate Print Styles */
+@media print {
+  .glass-nav,
+  footer,
+  .dashboard-sidebar,
+  .btn,
+  .toast-container {
+    display: none !important;
+  }
+  .main-content {
+    padding: 0 !important;
+  }
+  body {
+    background: #fff !important;
+  }
+}
+
+/* Legal Page Typography */
+.legal-content h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.legal-content p,
+.legal-content li {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
+/* Desktop Nav Links (show on wide screens) */
+@media (min-width: 1025px) {
+  .desktop-links {
+    display: flex !important;
+  }
+}
+
+/* Enhanced mobile card padding */
+@media (max-width: 480px) {
+  .card {
+    padding: 1rem;
+  }
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .stat-card {
+    padding: 1rem;
+  }
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  .modal-content {
+    padding: 1.25rem;
+  }
+}
+
