@@ -1,0 +1,38 @@
+# Render Blueprint for Smart Food Donation Platform
+# This deploys backend and frontend as separate services
+
+services:
+  # Backend API Service
+  - type: web
+    name: smart-food-donation-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm run render:build
+    startCommand: npm run render:start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: PORT
+        value: 5000
+      - key: CLIENT_URL
+        fromService:
+          name: smart-food-donation-frontend
+          type: web
+          property: url
+
+  # Frontend Static Site
+  - type: web
+    name: smart-food-donation-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: npm install --prefix client && npm run build --prefix client
+    publishDirectory: client/dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
