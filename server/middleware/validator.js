@@ -26,7 +26,7 @@ const registerRules = [
     .notEmpty().withMessage('Please confirm your password')
     .custom((value, { req }) => {
       if (value !== req.body.password) {
-        throw new Error('Confirm password does not match password'); s
+        throw new Error('Confirm password does not match password');
       }
       return true;
     }),

@@ -11,6 +11,8 @@ export const AuthProvider = ({ children }) => {
   const { showToast } = useToast();
 
   // Fetch current user details on boot if token exists
+  // NOTE: Do NOT call logout() here — it is declared with `const` below,
+  // so calling it inside loadUser triggers a ReferenceError on first render.
   const loadUser = useCallback(async () => {
     if (!token) {
       setLoading(false);
@@ -22,12 +24,17 @@ export const AuthProvider = ({ children }) => {
       if (res.success && res.data) {
         setUser(res.data);
       } else {
-        logout();
+        // Silently clear stale token (no toast on page load)
+        localStorage.removeItem('sfd_token');
+        setToken(null);
+        setUser(null);
       }
     } catch (err) {
       console.error('Failed to load user profile:', err);
-      // If token expired or invalid
-      logout();
+      // Token expired or server error — clear auth silently on startup
+      localStorage.removeItem('sfd_token');
+      setToken(null);
+      setUser(null);
     } finally {
       setLoading(false);
     }
