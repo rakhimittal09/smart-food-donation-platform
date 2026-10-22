@@ -296,3 +296,4 @@ For instant evaluation, the Login page (`/login`) includes **1-Click Quick Fill*
 * **Sanskar Agrawal (Frontend Architecture & Design System):** React SPA scaffolding, pure CSS design tokens, responsive layouts, Navbar, Sidebar, and Footer.
 * **Sahil Srivastava (Food Donation & Pickup Workflow):** Donation CRUD forms with real-time preview, catalog search/filtering, and interactive Pickup Tracking Stepper.
 * **Madhav Kohli (Admin Panel & Documentation):** Admin moderation views, User Directory, SVG Analytics Charts, Activity Audit Trail, SRS, API docs, and ER diagram design.
+

@@ -44,19 +44,24 @@ app.get('/api/health', (req, res) => {
 });
 
 // ── Serve Frontend in Single-Server Production (Optional) ────────────────────
+// Only serve static files if client/dist exists (i.e., after `npm run build`)
+const fs = require('fs');
 const clientDistPath = path.join(__dirname, '../client/dist');
-app.use(express.static(clientDistPath));
 
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
-    return next();
-  }
-  res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
-    if (err) {
-      next();
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
     }
+    res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
+      if (err) {
+        next();
+      }
+    });
   });
-});
+}
 
 // ── Error Handling ─────────────────────────────────────────────────────────
 app.use(notFound);

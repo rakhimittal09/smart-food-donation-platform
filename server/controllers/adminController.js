@@ -238,9 +238,9 @@ const getReports = async (req, res, next) => {
 // @access  Private (Admin only)
 const getActivityLogs = async (req, res, next) => {
   try {
-    const { module, page = 1, limit = 20 } = req.query;
+    const { module: logModule, page = 1, limit = 20 } = req.query;
     const query = {};
-    if (module && module !== 'all') query.module = module;
+    if (logModule && logModule !== 'all') query.module = logModule;
 
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
