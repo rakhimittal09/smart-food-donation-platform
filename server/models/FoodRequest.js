@@ -12,6 +12,11 @@ const foodRequestSchema = new mongoose.Schema(
       ref: 'User',
       required: [true, 'Receiver reference is required'],
     },
+    volunteer: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  default: null,
+},
     requestedQuantity: {
       type: Number,
       required: [true, 'Requested quantity is required'],

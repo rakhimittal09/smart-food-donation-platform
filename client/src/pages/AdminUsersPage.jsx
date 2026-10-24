@@ -98,14 +98,14 @@ const AdminUsersPage = () => {
           </div>
 
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {['all', 'donor', 'receiver', 'admin'].map((r) => (
+            {['all', 'donor', 'receiver', 'volunteer', 'admin'].map((r) => (
               <button
                 key={r}
                 onClick={() => setRoleFilter(r)}
                 className={`btn btn-sm ${roleFilter === r ? 'btn-primary' : 'btn-secondary'}`}
                 style={{ fontSize: '0.8rem', textTransform: 'capitalize' }}
               >
-                {r === 'all' ? 'All Roles' : r === 'receiver' ? 'NGOs' : r}
+                {r === 'all' ? 'All Roles' : r === 'receiver' ? 'NGOs' : r === 'volunteer' ? 'Volunteers' : r}
               </button>
             ))}
           </div>
@@ -148,8 +148,8 @@ const AdminUsersPage = () => {
                             width: '36px',
                             height: '36px',
                             borderRadius: '50%',
-                            background: u.role === 'admin' ? 'var(--rose-100)' : u.role === 'donor' ? 'var(--primary-100)' : 'var(--amber-100)',
-                            color: u.role === 'admin' ? 'var(--rose-700)' : u.role === 'donor' ? 'var(--primary-700)' : 'var(--amber-700)',
+                            background: u.role === 'admin' ? 'var(--rose-100)' : u.role === 'donor' ? 'var(--primary-100)' : u.role === 'volunteer' ? '#e0e7ff' : 'var(--amber-100)',
+                            color: u.role === 'admin' ? 'var(--rose-700)' : u.role === 'donor' ? 'var(--primary-700)' : u.role === 'volunteer' ? '#4338ca' : 'var(--amber-700)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -167,7 +167,7 @@ const AdminUsersPage = () => {
                     </td>
 
                     <td>
-                      <span className={`badge ${u.role === 'admin' ? 'badge-rejected' : u.role === 'donor' ? 'badge-available' : 'badge-requested'}`}>
+                      <span className={`badge ${u.role === 'admin' ? 'badge-rejected' : u.role === 'donor' ? 'badge-available' : u.role === 'volunteer' ? 'badge-accepted' : 'badge-requested'}`}>
                         {u.role}
                       </span>
                     </td>

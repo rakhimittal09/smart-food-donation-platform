@@ -141,6 +141,21 @@ const seedData = async () => {
     });
     await receiver2.save();
 
+    const volunteerUser = new User({
+      name: 'Kavita Singh (Volunteer)',
+      email: 'volunteer@foodcare.org',
+      password: 'volunteer123',
+      phone: '9834567899',
+      role: 'volunteer',
+      organizationName: 'Green Courier Volunteers',
+      address: 'Plot 18, Block B',
+      city: 'New Delhi',
+      state: 'Delhi',
+      pincode: '110025',
+      status: 'active',
+    });
+    await volunteerUser.save();
+
     // 4. Create Food Donations
     console.log('📌 Seeding Food Donations...');
     const today = new Date();
@@ -336,6 +351,7 @@ const seedData = async () => {
     const req3 = await FoodRequest.create({
       donation: donations[4]._id,
       receiver: receiver1._id,
+      volunteer: volunteerUser._id,
       requestedQuantity: 50,
       message: 'Distributed directly to daily wage workers and homeless families near Old Delhi station.',
       status: 'Delivered',

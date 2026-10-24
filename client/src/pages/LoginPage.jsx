@@ -31,6 +31,7 @@ const LoginPage = () => {
         if (res.user.role === 'admin') navigate('/admin');
         else if (res.user.role === 'donor') navigate('/donor-dashboard');
         else if (res.user.role === 'receiver') navigate('/receiver-dashboard');
+        else if (res.user.role === 'volunteer') navigate('/volunteer-dashboard');
         else navigate(from);
       } else {
         setError(res.message || 'Invalid email or password.');
@@ -60,7 +61,7 @@ const LoginPage = () => {
         background: 'linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%)',
       }}
     >
-      <div style={{ width: '100%', maxWidth: '460px' }}>
+      <div style={{ width: '100%', maxWidth: '480px' }}>
         
         {/* Card */}
         <div className="glass-card" style={{ padding: '2.5rem 2rem', background: '#ffffff', borderRadius: 'var(--radius-xl)' }}>
@@ -101,35 +102,45 @@ const LoginPage = () => {
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
               <Sparkles size={13} style={{ color: 'var(--primary-600)' }} /> 1-Click Demo Evaluation Credentials:
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.4rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.35rem' }}>
               <button
                 type="button"
-                onClick={() => quickFill('donor@tajkitchen.com', 'donor123')}
+                onClick={() => quickFill('donor@nourish.demo', 'Donor@123')}
                 className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.75rem', padding: '0.4rem 0.2rem', flexDirection: 'column', gap: '0.1rem' }}
+                style={{ fontSize: '0.725rem', padding: '0.4rem 0.15rem', flexDirection: 'column', gap: '0.1rem', textAlign: 'center' }}
               >
                 <strong>🍱 Donor</strong>
-                <span style={{ fontSize: '0.65rem', color: 'var(--text-light)' }}>Taj Kitchen</span>
+                <span style={{ fontSize: '0.625rem', color: 'var(--text-light)' }}>Taj Kitchen</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => quickFill('receiver@feedingindia.org', 'ngo123')}
+                onClick={() => quickFill('ngo@nourish.demo', 'Ngo@1234')}
                 className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.75rem', padding: '0.4rem 0.2rem', flexDirection: 'column', gap: '0.1rem' }}
+                style={{ fontSize: '0.725rem', padding: '0.4rem 0.15rem', flexDirection: 'column', gap: '0.1rem', textAlign: 'center' }}
               >
                 <strong>🤝 NGO</strong>
-                <span style={{ fontSize: '0.65rem', color: 'var(--text-light)' }}>Feeding India</span>
+                <span style={{ fontSize: '0.625rem', color: 'var(--text-light)' }}>Hope Relief</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => quickFill('admin@fooddonation.org', 'admin123')}
+                onClick={() => quickFill('volunteer@nourish.demo', 'Volunteer@123')}
                 className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.75rem', padding: '0.4rem 0.2rem', flexDirection: 'column', gap: '0.1rem' }}
+                style={{ fontSize: '0.725rem', padding: '0.4rem 0.15rem', flexDirection: 'column', gap: '0.1rem', textAlign: 'center' }}
+              >
+                <strong>🚚 Volunteer</strong>
+                <span style={{ fontSize: '0.625rem', color: 'var(--text-light)' }}>Courier</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => quickFill('admin@nourish.demo', 'Admin@123')}
+                className="btn btn-secondary btn-sm"
+                style={{ fontSize: '0.725rem', padding: '0.4rem 0.15rem', flexDirection: 'column', gap: '0.1rem', textAlign: 'center' }}
               >
                 <strong>👑 Admin</strong>
-                <span style={{ fontSize: '0.65rem', color: 'var(--text-light)' }}>System Chief</span>
+                <span style={{ fontSize: '0.625rem', color: 'var(--text-light)' }}>System Chief</span>
               </button>
             </div>
           </div>

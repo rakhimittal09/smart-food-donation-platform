@@ -100,6 +100,7 @@ export const AuthProvider = ({ children }) => {
   const isDonor = user?.role === 'donor';
   const isReceiver = user?.role === 'receiver';
   const isAdmin = user?.role === 'admin';
+  const isVolunteer = user?.role === 'volunteer';
 
   const value = {
     user,
@@ -109,6 +110,7 @@ export const AuthProvider = ({ children }) => {
     isDonor,
     isReceiver,
     isAdmin,
+    isVolunteer,
     login,
     register,
     logout,

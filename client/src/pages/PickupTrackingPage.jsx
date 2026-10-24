@@ -29,7 +29,7 @@ const statusBadgeClass = (status) => {
 const PickupTrackingPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isDonor, isReceiver, isAdmin } = useAuth();
+  const { isDonor, isReceiver, isAdmin, isVolunteer } = useAuth();
   const { showToast } = useToast();
 
   const [request, setRequest] = useState(null);
@@ -71,6 +71,21 @@ const PickupTrackingPage = () => {
   useEffect(() => {
     fetchRequestDetails();
   }, [fetchRequestDetails]);
+
+  const handleClaimDelivery = async () => {
+    try {
+      setActionLoading(true);
+      const res = await requestService.claimDelivery(id);
+      if (res.success) {
+        showToast('success', 'You have claimed this delivery task!');
+        fetchRequestDetails();
+      }
+    } catch (err) {
+      showToast('error', err.response?.data?.message || 'Failed to claim delivery.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const handleUpdatePickupDetails = async (e) => {
     e.preventDefault();
@@ -139,13 +154,19 @@ const PickupTrackingPage = () => {
               Status: {request.status}
             </span>
 
-            {request.status === 'Accepted' && (isReceiver || isAdmin) && (
+            {request.status === 'Accepted' && isVolunteer && !request.volunteer && (
+              <button onClick={handleClaimDelivery} disabled={actionLoading} className="btn btn-primary" style={{ gap: '0.4rem' }}>
+                <CheckCircle2 size={16} /> Claim Delivery
+              </button>
+            )}
+
+            {request.status === 'Accepted' && (isReceiver || isAdmin || isVolunteer) && (
               <button onClick={() => setConfirmStatus('Picked Up')} className="btn btn-secondary" style={{ gap: '0.4rem' }}>
                 <Truck size={16} /> Mark Picked Up
               </button>
             )}
 
-            {request.status === 'Picked Up' && (isDonor || isReceiver || isAdmin) && (
+            {request.status === 'Picked Up' && (isDonor || isReceiver || isAdmin || isVolunteer) && (
               <button onClick={() => setConfirmStatus('Delivered')} className="btn btn-primary" style={{ gap: '0.4rem' }}>
                 <PackageCheck size={18} /> Mark Delivered
               </button>

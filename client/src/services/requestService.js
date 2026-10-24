@@ -20,4 +20,9 @@ export const requestService = {
     const res = await api.put(`/requests/${id}/status`, statusData);
     return res.data;
   },
+
+  claimDelivery: async (id) => {
+    const res = await api.put(`/requests/${id}/claim`);
+    return res.data;
+  },
 };

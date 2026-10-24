@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 const RequestsPage = () => {
-  const { user, isDonor, isReceiver, isAdmin } = useAuth();
+  const { user, isDonor, isReceiver, isAdmin, isVolunteer } = useAuth();
   const { showToast } = useToast();
 
   const [requests, setRequests] = useState([]);
@@ -61,6 +61,21 @@ const RequestsPage = () => {
   useEffect(() => {
     fetchRequests(pagination.page);
   }, [fetchRequests, pagination.page]);
+
+  const handleClaim = async (reqId) => {
+    try {
+      setActionLoading(true);
+      const res = await requestService.claimDelivery(reqId);
+      if (res.success) {
+        showToast('success', 'You have claimed this delivery task!');
+        fetchRequests(pagination.page);
+      }
+    } catch (err) {
+      showToast('error', err.response?.data?.message || 'Failed to claim delivery.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const handleApprove = async () => {
     if (!selectedReq) return;
@@ -124,13 +139,17 @@ const RequestsPage = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary-600)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              {isDonor ? 'Donor Request Center' : 'NGO Logistics & Pickups'}
+              {isAdmin ? 'System Administration' : isVolunteer ? 'Volunteer Delivery Hub' : isDonor ? 'Donor Request Center' : 'NGO Logistics & Pickups'}
             </span>
             <h1 style={{ fontSize: '2rem', fontWeight: 800, marginTop: '0.2rem' }}>
-              {isDonor ? 'Received Food Requests' : 'My Food Requests & Pickups'}
+              {isAdmin ? 'All Platform Requests & Orders' : isVolunteer ? 'My Deliveries & Available Pickups' : isDonor ? 'Received Food Requests' : 'My Food Requests & Pickups'}
             </h1>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-              Track pickup requests through Pending → Accepted → Picked Up → Delivered.
+              {isVolunteer
+                ? 'Claim ready pickups and track your deliveries: Accepted → Picked Up → Delivered.'
+                : isAdmin
+                ? 'Complete oversight of all food requests: Pending → Accepted → Picked Up → Delivered.'
+                : 'Track pickup requests through Pending → Accepted → Picked Up → Delivered.'}
             </p>
           </div>
 
@@ -143,7 +162,7 @@ const RequestsPage = () => {
                 className={`btn btn-sm ${statusFilter === st ? 'btn-primary' : 'btn-secondary'}`}
                 style={{ fontSize: '0.8rem', textTransform: 'capitalize' }}
               >
-                {st === 'all' ? 'All Requests' : st}
+                {st === 'all' ? 'All Orders' : st}
               </button>
             ))}
           </div>
@@ -164,13 +183,18 @@ const RequestsPage = () => {
               <div key={req._id} className="card" style={{ padding: '1.5rem', transition: 'all 200ms ease' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                       <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)' }}>
                         {req.donation?.foodName || 'Food Item'}
                       </h3>
                       <span className={`badge ${req.status === 'Accepted' ? 'badge-approved' : req.status === 'Pending' ? 'badge-pending' : req.status === 'Delivered' || req.status === 'Picked Up' ? 'badge-completed' : 'badge-rejected'}`}>
                         ● {req.status}
                       </span>
+                      {req.volunteer && (
+                        <span className="badge badge-sky" style={{ fontSize: '0.75rem' }}>
+                          🚚 Volunteer: {req.volunteer.name || 'Assigned'}
+                        </span>
+                      )}
                     </div>
                     
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -183,8 +207,8 @@ const RequestsPage = () => {
                   </div>
 
                   {/* Actions according to role */}
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    {isDonor && req.status === 'Pending' && (
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                    {(isDonor || isAdmin) && req.status === 'Pending' && (
                       <>
                         <button
                           onClick={() => {
@@ -221,12 +245,23 @@ const RequestsPage = () => {
                       </button>
                     )}
 
+                    {isVolunteer && req.status === 'Accepted' && !req.volunteer && (
+                      <button
+                        onClick={() => handleClaim(req._id)}
+                        disabled={actionLoading}
+                        className="btn btn-primary btn-sm"
+                        style={{ gap: '0.35rem' }}
+                      >
+                        <Truck size={15} /> Claim Delivery
+                      </button>
+                    )}
+
                     <Link
                       to={`/pickup-tracking/${req._id}`}
                       className="btn btn-secondary btn-sm"
                       style={{ gap: '0.35rem' }}
                     >
-                      <Truck size={15} /> Track Pickup
+                      <Truck size={15} /> Track / Manage
                     </Link>
                   </div>
                 </div>
@@ -234,23 +269,20 @@ const RequestsPage = () => {
                 {/* Message / Details Section */}
                 <div style={{ background: 'var(--bg-main)', padding: '0.85rem 1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', fontSize: '0.875rem' }}>
                   <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.2rem' }}>
-                    {isDonor ? `Distribution Note from ${req.receiver?.organizationName || req.receiver?.name}:` : 'Your Note to Donor:'}
+                    {isDonor ? `Distribution Note from ${req.receiver?.organizationName || req.receiver?.name}:` : 'Distribution Plan / Note:'}
                   </div>
                   <p style={{ color: 'var(--text-muted)' }}>"{req.message}"</p>
                 </div>
 
                 {/* Bottom party summary */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)', fontSize: '0.8rem', color: 'var(--text-muted)', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <div>
-                    {isDonor ? (
-                      <span>Recipient: <strong>{req.receiver?.organizationName || req.receiver?.name}</strong> ({req.receiver?.phone})</span>
-                    ) : (
-                      <span>Donor Kitchen: <strong>{req.donation?.donor?.organizationName || req.donation?.donor?.name}</strong> ({req.donation?.donor?.phone})</span>
-                    )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)', fontSize: '0.8rem', color: 'var(--text-muted)', flexWrap: 'wrap', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
+                    <span>Donor: <strong>{req.donation?.donor?.organizationName || req.donation?.donor?.name}</strong> ({req.donation?.donor?.phone})</span>
+                    <span>Recipient NGO: <strong>{req.receiver?.organizationName || req.receiver?.name}</strong> ({req.receiver?.phone})</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     <MapPin size={14} style={{ color: 'var(--primary-600)' }} />
-                    <span>{req.donation?.pickupAddress || 'Pickup address provided upon approval'}</span>
+                    <span>{req.donation?.pickupAddress || 'Address on dispatch'}</span>
                   </div>
                 </div>
               </div>

@@ -20,6 +20,7 @@ const RoleProtectedRoute = ({ children, allowedRoles = [] }) => {
     if (user?.role === 'admin') return <Navigate to="/admin" replace />;
     if (user?.role === 'donor') return <Navigate to="/donor-dashboard" replace />;
     if (user?.role === 'receiver') return <Navigate to="/receiver-dashboard" replace />;
+    if (user?.role === 'volunteer') return <Navigate to="/volunteer-dashboard" replace />;
     return <Navigate to="/" replace />;
   }
 

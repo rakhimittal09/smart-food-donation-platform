@@ -270,22 +270,59 @@ const getDashboardStats = async (req, res, next) => {
     if (role === 'volunteer') {
       // Volunteer can see pickups assigned/available in their city
       const assignedPickups = await FoodRequest.countDocuments({
-        'pickupDetails.pickupPersonName': req.user.name,
+        volunteer: userId,
         status: { $in: ['Accepted', 'Picked Up'] },
       });
       const completedDeliveries = await FoodRequest.countDocuments({
-        'pickupDetails.pickupPersonName': req.user.name,
+        volunteer: userId,
         status: 'Delivered',
       });
 
-      // Available pickups in volunteer's city
-      const availablePickups = await FoodDonation.find({
-        status: { $in: ['Accepted'] },
-        city: { $regex: req.user.city || '', $options: 'i' },
+      // Active deliveries assigned to this volunteer
+      const myActiveDeliveries = await FoodRequest.find({
+        volunteer: userId,
+        status: { $in: ['Accepted', 'Picked Up'] },
       })
-        .populate('donor', 'name organizationName phone city')
-        .sort({ pickupDate: 1 })
+        .populate({
+          path: 'donation',
+          populate: { path: 'donor', select: 'name organizationName phone city pickupAddress' },
+        })
+        .populate('receiver', 'name organizationName phone email city address')
+        .sort({ updatedAt: -1 });
+
+      // Completed / Delivered by this volunteer
+      const myCompletedDeliveries = await FoodRequest.find({
+        volunteer: userId,
+        status: 'Delivered',
+      })
+        .populate({
+          path: 'donation',
+          populate: { path: 'donor', select: 'name organizationName phone city pickupAddress' },
+        })
+        .populate('receiver', 'name organizationName phone email city address')
+        .sort({ completedAt: -1 })
         .limit(10);
+
+      // Available requests ready for pickup & delivery
+      let availablePickups = await FoodRequest.find({
+        status: 'Accepted',
+        volunteer: null,
+      })
+        .populate({
+          path: 'donation',
+          populate: { path: 'donor', select: 'name organizationName phone city pickupAddress' },
+        })
+        .populate('receiver', 'name organizationName phone email city address')
+        .sort({ createdAt: -1 })
+        .limit(10);
+
+      // Fallback: Also check FoodDonation if no unassigned requests
+      const availableDonations = await FoodDonation.find({
+        status: 'Accepted',
+      })
+        .populate('donor', 'name organizationName phone city pickupAddress')
+        .sort({ pickupDate: 1 })
+        .limit(5);
 
       const recentActivities = await ActivityLog.find({ user: userId })
         .sort({ createdAt: -1 })
@@ -297,6 +334,9 @@ const getDashboardStats = async (req, res, next) => {
           assignedPickups,
           completedDeliveries,
           availablePickups,
+          availableDonations,
+          myActiveDeliveries,
+          myCompletedDeliveries,
           recentActivities,
         },
       });
@@ -316,7 +356,18 @@ const getDashboardStats = async (req, res, next) => {
       });
       const totalRequests = await FoodRequest.countDocuments();
       const pendingRequests = await FoodRequest.countDocuments({ status: 'Pending' });
+      const inTransitRequests = await FoodRequest.countDocuments({ status: { $in: ['Accepted', 'Picked Up'] } });
       const completedPickups = await FoodRequest.countDocuments({ status: 'Delivered' });
+
+      const recentRequests = await FoodRequest.find()
+        .populate({
+          path: 'donation',
+          populate: { path: 'donor', select: 'name organizationName phone city pickupAddress' },
+        })
+        .populate('receiver', 'name organizationName phone email city')
+        .populate('volunteer', 'name phone')
+        .sort({ createdAt: -1 })
+        .limit(10);
 
       const recentActivities = await ActivityLog.find()
         .populate('user', 'name role email')
@@ -335,7 +386,9 @@ const getDashboardStats = async (req, res, next) => {
           completedDonations,
           totalRequests,
           pendingRequests,
+          inTransitRequests,
           completedPickups,
+          recentRequests,
           recentActivities,
         },
       });

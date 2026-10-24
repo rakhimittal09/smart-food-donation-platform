@@ -5,6 +5,7 @@ const {
   getRequests,
   getRequestById,
   updateRequestStatus,
+  claimDelivery,
 } = require('../controllers/requestController');
 const { protect } = require('../middleware/auth');
 const { authorize } = require('../middleware/role');
@@ -14,5 +15,6 @@ router.post('/', protect, authorize('receiver'), requestRules, createRequest);
 router.get('/', protect, getRequests);
 router.get('/:id', protect, getRequestById);
 router.put('/:id/status', protect, updateRequestStatus);
+router.put('/:id/claim', protect, authorize('volunteer', 'admin'), claimDelivery);
 
 module.exports = router;

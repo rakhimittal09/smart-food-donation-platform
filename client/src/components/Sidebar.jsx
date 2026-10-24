@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 const Sidebar = () => {
-  const { user, isDonor, isReceiver, isAdmin } = useAuth();
+  const { user, isDonor, isReceiver, isAdmin, isVolunteer } = useAuth();
 
   const navItemStyle = ({ isActive }) => ({
     display: 'flex',
@@ -51,6 +51,8 @@ const Sidebar = () => {
                 ? 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)'
                 : isDonor
                 ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                : isVolunteer
+                ? 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)'
                 : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               color: '#ffffff',
               display: 'flex',
@@ -67,7 +69,7 @@ const Sidebar = () => {
               {user?.name}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              {user?.organizationName || (isAdmin ? 'System Administrator' : isDonor ? 'Food Donor' : 'Registered NGO')}
+              {user?.organizationName || (isAdmin ? 'System Administrator' : isDonor ? 'Food Donor' : isVolunteer ? 'Food Rescue Volunteer' : 'Registered NGO')}
             </div>
           </div>
         </div>
@@ -114,6 +116,24 @@ const Sidebar = () => {
             </NavLink>
             <NavLink to="/requests" style={navItemStyle}>
               <Package size={18} /> My Food Requests
+            </NavLink>
+          </>
+        )}
+
+        {/* VOLUNTEER NAVIGATION */}
+        {isVolunteer && (
+          <>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-light)', padding: '0.5rem 0.75rem', letterSpacing: '0.08em' }}>
+              Volunteer Hub
+            </div>
+            <NavLink to="/volunteer-dashboard" style={navItemStyle} end>
+              <LayoutDashboard size={18} /> Dashboard
+            </NavLink>
+            <NavLink to="/donations" style={navItemStyle}>
+              <Compass size={18} /> Browse Pickups
+            </NavLink>
+            <NavLink to="/requests" style={navItemStyle}>
+              <Truck size={18} /> My Deliveries
             </NavLink>
           </>
         )}

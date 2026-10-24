@@ -154,6 +154,16 @@ const AdminDashboard = () => {
             </div>
           </Link>
 
+          <Link to="/admin/requests" className="card" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--indigo-50)', color: 'var(--indigo-600)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <PackageCheck size={22} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-main)' }}>Orders & Deliveries</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{stats?.pendingRequests || 0} Pending • {stats?.completedPickups || 0} Delivered</div>
+            </div>
+          </Link>
+
           <Link to="/admin/reports" className="card" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem' }}>
             <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--indigo-50)', color: 'var(--indigo-600)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <BarChart3 size={22} />
@@ -185,6 +195,72 @@ const AdminDashboard = () => {
           </Link>
 
         </div>
+      </div>
+
+      {/* Orders & Deliveries Overview Table */}
+      <div className="card" style={{ marginBottom: '2rem' }}>
+        <div className="card-header">
+          <div>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>Orders & Deliveries Oversight</h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              Real-time feed of Pending approvals, Active in-transit pickups, and Delivered orders
+            </p>
+          </div>
+          <Link to="/admin/requests" className="btn btn-secondary btn-sm" style={{ gap: '0.35rem' }}>
+            All Orders ({stats?.totalRequests || 0}) <ArrowRight size={14} />
+          </Link>
+        </div>
+
+        {stats?.recentRequests && stats.recentRequests.length > 0 ? (
+          <div className="table-container">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Food Item</th>
+                  <th>Quantity</th>
+                  <th>Donor</th>
+                  <th>Recipient NGO</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.recentRequests.map((req) => (
+                  <tr key={req._id}>
+                    <td>
+                      <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>
+                        {req.donation?.foodName || 'Food Item'}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        {req.donation?.city} • {new Date(req.createdAt).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td>
+                      <span style={{ fontWeight: 600 }}>{req.donation?.donor?.organizationName || req.donation?.donor?.name || 'Donor'}</span>
+                    </td>
+                    <td>
+                      <span>{req.receiver?.organizationName || req.receiver?.name || 'NGO'}</span>
+                    </td>
+                    <td>
+                      <span className={`badge ${req.status === 'Accepted' ? 'badge-approved' : req.status === 'Pending' ? 'badge-pending' : req.status === 'Delivered' ? 'badge-completed' : 'badge-available'}`}>
+                        ● {req.status}
+                      </span>
+                    </td>
+                    <td>
+                      <Link to={`/pickup-tracking/${req._id}`} className="btn btn-secondary btn-sm" style={{ padding: '0.25rem 0.6rem', fontSize: '0.775rem' }}>
+                        Track
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+            No orders or pickup requests recorded yet.
+          </div>
+        )}
       </div>
 
       {/* System Activity Stream */}
