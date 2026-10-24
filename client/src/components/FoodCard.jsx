@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Clock, Calendar, ArrowRight, UserCheck, CheckCircle, AlertCircle } from 'lucide-react';
+import { getBackendURL } from '../services/api';
 
 const FoodCard = ({ donation, onRequestClick, isDonorView = false }) => {
   if (!donation) return null;
@@ -75,10 +76,11 @@ const FoodCard = ({ donation, onRequestClick, isDonorView = false }) => {
     'Grains & Pulses': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80',
   };
 
+  const backendUrl = getBackendURL();
   const displayImage = image
-    ? image.startsWith('http') || image.startsWith('/uploads')
+    ? image.startsWith('http')
       ? image
-      : `http://localhost:5001${image}`
+      : `${backendUrl}${image.startsWith('/') ? image : `/${image}`}`
     : defaultFoodImages[category] || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80';
 
   return (

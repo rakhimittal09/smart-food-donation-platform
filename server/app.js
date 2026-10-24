@@ -10,13 +10,22 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'https://smart-food-donation-frontend-swnz.onrender.com',
   process.env.CLIENT_URL,
 ].filter(Boolean);
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' && process.env.CLIENT_URL
-    ? [process.env.CLIENT_URL, 'http://localhost:5173']
-    : true,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.onrender.com') ||
+      process.env.NODE_ENV !== 'production'
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));

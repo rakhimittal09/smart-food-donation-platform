@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { donationService } from '../services/donationService';
 import { requestService } from '../services/requestService';
+import { getBackendURL } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -138,10 +139,11 @@ const DonationDetailsPage = () => {
     'Grains & Pulses': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=1200&q=80',
   };
 
+  const backendUrl = getBackendURL();
   const displayImage = donation.image
-    ? donation.image.startsWith('http') || donation.image.startsWith('/uploads')
+    ? donation.image.startsWith('http')
       ? donation.image
-      : `http://localhost:5001${donation.image}`
+      : `${backendUrl}${donation.image.startsWith('/') ? donation.image : `/${donation.image}`}`
     : defaultFoodImages[donation.category] || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80';
 
   return (
