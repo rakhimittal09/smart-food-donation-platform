@@ -4,9 +4,6 @@ export const getBackendURL = () => {
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '');
   }
-  if (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')) {
-    return 'https://smart-food-donation-backend-3izc.onrender.com';
-  }
   return '';
 };
 
@@ -25,32 +22,32 @@ const api = axios.create({
   },
 });
 
-// Request interceptor: Attach JWT token if available
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('sfd_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor: Global error handler
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // If 401 and token exists, token expired
-      if (localStorage.getItem('sfd_token')) {
-        localStorage.removeItem('sfd_token');
-        localStorage.removeItem('sfd_user');
-        window.location.href = '/login?session=expired';
+  // Request interceptor: Attach JWT token if available
+  api.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem('sfd_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
-    }
-    return Promise.reject(error);
-  }
-);
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
-export default api;
+  // Response interceptor: Global error handler
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response && error.response.status === 401) {
+        // If 401 and token exists, token expired
+        if (localStorage.getItem('sfd_token')) {
+          localStorage.removeItem('sfd_token');
+          localStorage.removeItem('sfd_user');
+          window.location.href = '/login?session=expired';
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  export default api;
